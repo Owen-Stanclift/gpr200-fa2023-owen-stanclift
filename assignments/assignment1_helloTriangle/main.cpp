@@ -9,27 +9,35 @@ const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
 
 unsigned int vbo;
-float verticies[9] = {
-	//x		//y		//z
-	-0.5,	 0.5,	0.0, //bottom left
-	 0.5,	-0.5,	0.0, //bottom right
-	 0.0,	 0.5,	0.0  //top center
+float verticies[21] = {
+	//x		//y		//z		//r		//g		//b		//a
+	-0.5,	 0.5,	0.0,	1.0,	0.0,	0.0,	1.0,//bottom left
+	 0.5,	-0.5,	0.0,	0.0,	1.0,	0.0,	1.0,//bottom right
+	 0.0,	 0.5,	0.0,	0.0,	0.0,	1.0,	1.0//top center
 
 };
 
 const char* vertexShaderSource = R"(
 #version 450
 layout(location = 0) in vec3 vPos;
+layout(location = 1) in vec4 vColor;
+out vec4 Color;
+uniform float _Time;
 void main(){
-		gl_Position = vec4(vPos,1.0);
+		Color = vColor;
+		vec3 offset = vec3(0,sin(vPos.x + _Time),0)*0.5;
+		gl_Position = vec4(vPos+ offset,1.0);
 }
 )";
-const char* fragmentShaderSouce = R"(
+const char* fragmentShaderSource = R"(
 #version 450
-out vec4 FragColor
+out vec4 FragColor;
+in vec4 Color;
+uniform float_Time;
 void main(){
-		FragColor = vec4(1.0);
+		FragColor = Color * abs(sin(uTime));
 }
+
 )";
 
 int main() {
@@ -67,8 +75,12 @@ int main() {
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 
 	//Definie position attribute (3 floats)
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (const void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (const void*)0);
 	glEnableVertexAttribArray(0);
+
+	//Color Attribute
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (const void*)(sizeof(float) * 3));
+	glEnableVertexArrayAttrib(1);
 
 	//Creates a new vertex array object with vertex data
 	unsigned int createVAO(float* vertexData, int numVerticies);
@@ -94,7 +106,7 @@ int main() {
 	unsigned int createShader(GLenum shaderType, const char* sourceCode);
 
 	unsigned int vertexShader = createShader(GL_VERTEX_SHADER, vertexShaderSource);
-	unsigned int fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentShaderSouce);
+	unsigned int fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
 	unsigned int shaderProgram = glCreateProgram();
 	//Attach each stage
 	glAttachShader(shaderProgram, vertexShader);
@@ -117,19 +129,30 @@ int main() {
 
 	//Create a new shader program with vertex + fragment stages
 	//Return id of new shader program if successful, 0 if failed
-	unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSouce);
+	unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
 
 	//-----------Render Loop-----------------
+	unsigned int shader = createShaderProgram(vertexShaderSource, fragmentShaderSource);
+	unsigned int vao = createVAO(verticies);
 
-	//----------Multiple Vertex Attributes--------
+	//The current time in seconds this frame
+	float time = (float)glfwGetTime();
+	//Get location of the uniform by name
+	int timeLocation = glGetUniformLocation(shader, "_Time");
+	layout(location = 6) uniform float _Time;
+	uniform vec3_Time;
 
-	//---------Uniforms-----------------
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+		glUseProgram(shader);
+		glBindVertexArray(vao);
+		glUniform1f(timeLocation, time);
+		glDrawArrays(GL_TRIANGLES, 0,3);
 		glfwSwapBuffers(window);
 	}
+
 	printf("Shutting down...");
 }
