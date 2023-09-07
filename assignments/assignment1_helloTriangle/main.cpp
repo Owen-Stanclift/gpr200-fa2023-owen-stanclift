@@ -80,7 +80,7 @@ int main() {
 
 	//Color Attribute
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (const void*)(sizeof(float) * 3));
-	glEnableVertexArrayAttrib(1);
+	glEnableVertexAttribArray(1);
 
 	//Creates a new vertex array object with vertex data
 	unsigned int createVAO(float* vertexData, int numVerticies);
@@ -133,14 +133,15 @@ int main() {
 
 	//-----------Render Loop-----------------
 	unsigned int shader = createShaderProgram(vertexShaderSource, fragmentShaderSource);
-	unsigned int vao = createVAO(verticies);
+	unsigned int vao = createVAO(verticies,3);
 
 	//The current time in seconds this frame
 	float time = (float)glfwGetTime();
 	//Get location of the uniform by name
 	int timeLocation = glGetUniformLocation(shader, "_Time");
-	layout(location = 6) uniform float _Time;
-	uniform vec3_Time;
+	glUniform1f(timeLocation, time);
+	glDrawArrays(GL_TRIANGLES, 0, 3);
+	
 
 
 	while (!glfwWindowShouldClose(window)) {
