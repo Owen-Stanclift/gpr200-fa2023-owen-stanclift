@@ -23,23 +23,10 @@ float vertices[9] = {
 	 0.0,  0.5, 0.0 
 };
 
-const char* vertexShaderSource = R"(
-	#version 450
-	layout(location = 0) in vec3 vPos;
-	void main(){
-		gl_Position = vec4(vPos,1.0);
-	}
-)";
+const char* fragmentShaderSource;
+const char* vertexShaderSource;
 
-const char* fragmentShaderSource = R"(
-	#version 450
-	out vec4 FragColor;
-	uniform vec3 _Color;
-	uniform float _Brightness;
-	void main(){
-		FragColor = vec4(_Color * _Brightness,1.0);
-	}
-)";
+
 
 float triangleColor[3] = { 1.0f, 0.5f, 0.0f };
 float triangleBrightness = 1.0f;
