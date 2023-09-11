@@ -9,6 +9,10 @@ const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
 
 unsigned int vbo;
+unsigned int createVAO(float* vertexData, int numVerticies);
+unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
+unsigned int createShader(GLenum shaderType, const char* sourceCode);
+
 float verticies[21] = {
 	//x		//y		//z		//r		//g		//b		//a
 	-0.5,	 0.5,	0.0,	1.0,	0.0,	0.0,	1.0,//bottom left
@@ -33,9 +37,9 @@ const char* fragmentShaderSource = R"(
 #version 450
 out vec4 FragColor;
 in vec4 Color;
-uniform float_Time;
+uniform float _Time;
 void main(){
-		FragColor = Color * abs(sin(uTime));
+		FragColor = Color * abs(sin(_Time));
 }
 
 )";
@@ -61,12 +65,65 @@ int main() {
 
 
 	//--------Vertex Data----------
+
+
+	
+
+	
+
+	//Creates a new vertex array object with vertex data
+	
+
+	//-------Create a shader program--------
+
+
+	//Create a new vertex shader object
+	
+	//Creates a new shader of a given type.
+	//Returns id of the shader object
+	
+
+	
+
+	//Create a new shader program with vertex + fragment stages
+	//Return id of new shader program if successful, 0 if failed
+
+
+	//-----------Render Loop-----------------
+	unsigned int shader = createShaderProgram(vertexShaderSource, fragmentShaderSource);
+	unsigned int vao = createVAO(verticies,3);
+
+	//The current time in seconds this frame
+	
+	
+
+
+	while (!glfwWindowShouldClose(window)) {
+		glfwPollEvents();
+		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
+		glUseProgram(shader);
+		glBindVertexArray(vao);
+		float time = (float)glfwGetTime();
+		//Get location of the uniform by name
+		int timeLocation = glGetUniformLocation(shader, "_Time");
+		glUniform1f(timeLocation, time);
+		glDrawArrays(GL_TRIANGLES, 0, 3);
+		glUniform1f(timeLocation, time);
+		glDrawArrays(GL_TRIANGLES, 0,3);
+		glfwSwapBuffers(window);
+	}
+
+	printf("Shutting down...");
+}
+
+unsigned int createVAO(float* vertexData, int numVerticies)
+{
 	//Define a new buffer id
-	unsigned int vbo;
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	//Allocate space for + send vertex data to GPU.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(verticies), verticies, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * 7 * numVerticies, vertexData, GL_STATIC_DRAW);
 
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
@@ -81,30 +138,10 @@ int main() {
 	//Color Attribute
 	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, sizeof(float) * 7, (const void*)(sizeof(float) * 3));
 	glEnableVertexAttribArray(1);
-
-	//Creates a new vertex array object with vertex data
-	unsigned int createVAO(float* vertexData, int numVerticies);
-
-	//-------Create a shader program--------
-
-
-	//Create a new vertex shader object
-	unsigned int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-	//Supply the shader object with source code
-	glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-	//Compile the shader object
-	glCompileShader(vertexShader);
-	int success;
-	glGetShaderiv(vertexShader, GL_COMPILE_STATUS, &success);
-	if (!success) {
-		char infoLog[512];
-		glGetShaderInfoLog(vertexShader, 512, NULL, infoLog);
-		printf("Failed to comple shader: %s", infoLog);
-	}
-	//Creates a new shader of a given type.
-	//Returns id of the shader object
-	unsigned int createShader(GLenum shaderType, const char* sourceCode);
-
+	return vao;
+}
+unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource)
+{
 	unsigned int vertexShader = createShader(GL_VERTEX_SHADER, vertexShaderSource);
 	unsigned int fragmentShader = createShader(GL_FRAGMENT_SHADER, fragmentShaderSource);
 	unsigned int shaderProgram = glCreateProgram();
@@ -113,47 +150,35 @@ int main() {
 	glAttachShader(shaderProgram, fragmentShader);
 	//Link all the stages together
 	glLinkProgram(shaderProgram);
-
-	//Check for linking errors
 	int success;
+	//Check for linking errors
 	glGetProgramiv(shaderProgram, GL_LINK_STATUS, &success);
 	if (!success)
 	{
 		char infoLog[512];
 		glGetProgramInfoLog(shaderProgram, 512, NULL, infoLog);
 		printf("Failed to link shader program: %s", infoLog);
+		return 0;
 	}
 	//Delete intermediate objects
 	glDeleteShader(vertexShader);
 	glDeleteShader(fragmentShader);
-
-	//Create a new shader program with vertex + fragment stages
-	//Return id of new shader program if successful, 0 if failed
-	unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
-
-	//-----------Render Loop-----------------
-	unsigned int shader = createShaderProgram(vertexShaderSource, fragmentShaderSource);
-	unsigned int vao = createVAO(verticies,3);
-
-	//The current time in seconds this frame
-	float time = (float)glfwGetTime();
-	//Get location of the uniform by name
-	int timeLocation = glGetUniformLocation(shader, "_Time");
-	glUniform1f(timeLocation, time);
-	glDrawArrays(GL_TRIANGLES, 0, 3);
-	
-
-
-	while (!glfwWindowShouldClose(window)) {
-		glfwPollEvents();
-		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-		glUseProgram(shader);
-		glBindVertexArray(vao);
-		glUniform1f(timeLocation, time);
-		glDrawArrays(GL_TRIANGLES, 0,3);
-		glfwSwapBuffers(window);
+	return shaderProgram;
+}
+unsigned int createShader(GLenum shaderType, const char* sourceCode)
+{
+	unsigned int shader = glCreateShader(shaderType);
+	//Supply the shader object with source code
+	glShaderSource(shader, 1, &sourceCode, NULL);
+	//Compile the shader object
+	glCompileShader(shader);
+	int success;
+	glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+	if (!success) {
+		char infoLog[512];
+		glGetShaderInfoLog(shader, 512, NULL, infoLog);
+		printf("Failed to comple shader: %s", infoLog);
+		return 0;
 	}
-
-	printf("Shutting down...");
+	return shader;
 }
