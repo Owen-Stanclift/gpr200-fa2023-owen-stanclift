@@ -19,11 +19,17 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
 
-float vertices[9] = {
+float vertices[12] = {
 	//x   //y  //z   
-	-0.5, -0.5, 0.0, 
-	 0.5, -0.5, 0.0,
-	 0.0,  0.5, 0.0 
+	-0.5, -0.5, 0.0, //Bottom left
+	 0.5, -0.5, 0.0, //Bottom right
+	-0.5,  0.5, 0.0, //Top left
+	 0.5,0.5,0.0 // Top right
+};
+
+unsigned int indicies[6] = {
+	0,1,2,
+	3,4,5
 };
 
 const char* fragmentShaderSource;
@@ -39,7 +45,10 @@ int main() {
 
 	std::string vertexShaderSource = yourLib::loadShaderSourceFromFile("assets/vertexShader.vert");
 	std::string fragmentShaderSource = yourLib::loadShaderSourceFromFile("assets/fragmentShader.frag");
-	unsigned int shader = createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());
+	
+	
+	/*unsigned int shader = createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());*/
+	yourLib::Shader shader(vertexShaderSource, fragmentShaderSource);
 	printf("Initializing...");
 	if (!glfwInit()) {
 		printf("GLFW failed to init!");
@@ -65,20 +74,22 @@ int main() {
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
-	unsigned int shader = createShaderProgram(vertexShaderSource, fragmentShaderSource);
+	/*unsigned int shader = createShaderProgram(vertexShaderSource, fragmentShaderSource);*/
 	unsigned int vao = createVAO(vertices, 3);
 
-	glUseProgram(shader);
+	shader.use();
 	glBindVertexArray(vao);
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
+		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
 		//Set uniforms
-		glUniform3f(glGetUniformLocation(shader, "_Color"), triangleColor[0], triangleColor[1], triangleColor[2]);
-		glUniform1f(glGetUniformLocation(shader,"_Brightness"), triangleBrightness);
+		/*glUniform3f(glGetUniformLocation(shader, "_Color"), triangleColor[0], triangleColor[1], triangleColor[2]);*/
+		shader.setVec3((shader, "_Color"), triangleColor[0], triangleColor[1], triangleColor[2]);
+		/*glUniform1f(glGetUniformLocation(shader,"_Brightness"), triangleBrightness);*/
+		shader.setFloat((shader, "_Brightness"), triangleBrightness);
 
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
@@ -109,7 +120,7 @@ int main() {
 
 
 
-unsigned int createVAO(float* vertexData, int numVertices) {
+unsigned int createVAO(float* vertexData, int numVertices,unsigned int* indiceisData, int numIndicies) {
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -121,6 +132,10 @@ unsigned int createVAO(float* vertexData, int numVertices) {
 	//Allocate space for + send vertex data to GPU.
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numVertices * 3, vertexData, GL_STATIC_DRAW);
 
+	unsigned int ebo;
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numIndicies, indiceisData, GL_STATIC_DRAW);
 	//Position attribute
 	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (const void*)0);
 	glEnableVertexAttribArray(0);
