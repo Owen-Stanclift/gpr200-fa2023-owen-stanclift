@@ -13,7 +13,7 @@
 
 unsigned int createShader(GLenum shaderType, const char* sourceCode);
 unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
-unsigned int createVAO(float* vertexData, int numVertices);
+unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned int* indicies, int numIndicies);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
 const int SCREEN_WIDTH = 1080;
@@ -25,10 +25,10 @@ struct Vertex {
 };
 Vertex vertices[4] = {
 	//x   //y  //z   //u	//v
-	-0.5, -0.5, 0.0, 0.0,	0.0, //Bottom left
-	 0.5, -0.5, 0.0, 1.0,	0.0,//Bottom right
-	-0.5,  0.5, 0.0, 1.0,	0.0, //Top left
-	 0.5,  0.5,	0.0, 1.0,	1.0 // Top right
+	{-0.5, -0.5, 0.0, 0.0,	0.0}, //Bottom left
+	{0.5, -0.5, 0.0, 1.0,	0.0 },//Bottom right
+{-0.5,  0.5, 0.0, 0.0,	1.0}, //Top left
+	 {0.5,  0.5,	0.0, 1.0,	1.0} // Top right
 };
 
 unsigned int indicies[6] = {
@@ -79,7 +79,7 @@ int main() {
 	ImGui_ImplOpenGL3_Init();
 
 	/*unsigned int shader = createShaderProgram(vertexShaderSource, fragmentShaderSource);*/
-	unsigned int vao = createVAO(vertices, 3);
+	unsigned int vao = createVAO(vertices, 4,indicies,6);
 
 	shader.use();
 	glBindVertexArray(vao);
@@ -124,7 +124,7 @@ int main() {
 
 
 
-unsigned int createVAO(Vertex vertexData, int numVertices,unsigned int* indiceisData, int numIndicies) {
+unsigned int createVAO(Vertex* vertexData, int numVertices,unsigned int* indiceisData, int numIndicies) {
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
@@ -134,15 +134,19 @@ unsigned int createVAO(Vertex vertexData, int numVertices,unsigned int* indiceis
 	glGenBuffers(1, &vbo);
 	glBindBuffer(GL_ARRAY_BUFFER, vbo);
 	//Allocate space for + send vertex data to GPU.
-	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * numVertices * 3, vertexData, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * numVertices, vertexData, GL_STATIC_DRAW);
 
 	unsigned int ebo;
 	glGenBuffers(1, &ebo);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * numIndicies, indiceisData, GL_STATIC_DRAW);
 	//Position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, (const void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex,x));
 	glEnableVertexAttribArray(0);
+
+	//UV
+	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)(offsetof(Vertex, u)));
+	glEnableVertexAttribArray(1);
 
 	return vao;
 }
