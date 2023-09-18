@@ -19,17 +19,21 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
 
-float vertices[12] = {
-	//x   //y  //z   
-	-0.5, -0.5, 0.0, //Bottom left
-	 0.5, -0.5, 0.0, //Bottom right
-	-0.5,  0.5, 0.0, //Top left
-	 0.5,0.5,0.0 // Top right
+struct Vertex {
+	float x, y, z;
+	float u, v;
+};
+Vertex vertices[4] = {
+	//x   //y  //z   //u	//v
+	-0.5, -0.5, 0.0, 0.0,	0.0, //Bottom left
+	 0.5, -0.5, 0.0, 1.0,	0.0,//Bottom right
+	-0.5,  0.5, 0.0, 1.0,	0.0, //Top left
+	 0.5,  0.5,	0.0, 1.0,	1.0 // Top right
 };
 
 unsigned int indicies[6] = {
 	0,1,2,
-	3,4,5
+	0,1,3
 };
 
 const char* fragmentShaderSource;
@@ -120,7 +124,7 @@ int main() {
 
 
 
-unsigned int createVAO(float* vertexData, int numVertices,unsigned int* indiceisData, int numIndicies) {
+unsigned int createVAO(Vertex vertexData, int numVertices,unsigned int* indiceisData, int numIndicies) {
 	unsigned int vao;
 	glGenVertexArrays(1, &vao);
 	glBindVertexArray(vao);
