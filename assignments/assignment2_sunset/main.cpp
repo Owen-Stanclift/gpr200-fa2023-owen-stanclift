@@ -45,9 +45,15 @@ float triangleBrightness = 1.0f;
 //mountain
 float mountainColor[3] = {0.5f,0.5f,0.5f};
 float mountainBrightness = 1.0f;
+
+float skyColor1[3] = {0.0f, 0.0f, 1.0f};
+float skyColor2[3] = {0.0f, 0.5f, 1.0f};
+
+float sunColor[3] = {1.0f, 1.0f, 0.5f};
+float sunRadius = 0.3f;
 bool showImGUIDemoWindow = true;
 
-float speed;
+float speed =1;
 
 unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned int* indicies, int numIndicies);
 
@@ -115,8 +121,12 @@ int main() {
 			ImGui::Checkbox("Show Demo Window", &showImGUIDemoWindow);
 			ImGui::ColorEdit3("Color", triangleColor);
 			ImGui::SliderFloat("Sky Brightness", &triangleBrightness, 0.0f, 1.0f);
-			ImGui::ColorEdit3("Color", mountainColor);
+			ImGui::ColorEdit3("Sky Color 1", skyColor1);
+			ImGui::ColorEdit3("Sky Color 2", skyColor2);
+			ImGui::ColorEdit3("Mountain Color", mountainColor);
 			ImGui::SliderFloat("Mountain Brightness", &mountainBrightness, 0.0f, 1.0f);
+			ImGui::ColorEdit3("Sun Color ", sunColor);
+			ImGui::SliderFloat("Sun Brightness", &sunRadius, 0.0f, 1.0f);
 			ImGui::SliderFloat("Sun Speed", &speed, 0.0f, 1.0f);
 			ImGui::End();
 			if (showImGUIDemoWindow) {
