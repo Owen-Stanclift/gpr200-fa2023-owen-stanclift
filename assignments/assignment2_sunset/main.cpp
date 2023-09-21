@@ -13,7 +13,6 @@
 
 unsigned int createShader(GLenum shaderType, const char* sourceCode);
 unsigned int createShaderProgram(const char* vertexShaderSource, const char* fragmentShaderSource);
-unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned int* indicies, int numIndicies);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
 const int SCREEN_WIDTH = 1080;
@@ -44,6 +43,8 @@ const char* vertexShaderSource;
 float triangleColor[3] = { 1.0f, 0.5f, 0.0f };
 float triangleBrightness = 1.0f;
 bool showImGUIDemoWindow = true;
+
+unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned int* indicies, int numIndicies);
 
 int main() {
 
