@@ -10,16 +10,18 @@
 	void main(){
 			
 		
-			//Bright Sky
-			vec3 color1 = vec3(0.0f,0.0f,1.0f);
-			vec3 color2 = vec3(0.0f,0.5f,1.0f);
+			//Bright Sky 
+			float blend = sin(iTime)*0.5 + 0.5;
+			vec3 color1 = vec3(blend,blend/2,0.0f);
+			vec3 color2 = vec3(0.0f,0.0f,blend);
 			vec3 color = mix(color1,color2,UV.y);//Blue sky
+			
 
 			//Dark Sky
 			float edge = sin(iTime)*0.5 + 0.5;
 			float t = smoothstep(edge+0.05,edge-0.05,UV.y); //Dark sky going up and down
 			
-			vec3 skyColor = vec3(0.0,0.0,t);
+			vec3 skyColor = vec3(0.0f,0.0f,t);
 			color = mix(color,skyColor,UV.y);
 				//Sun
 			vec2 circlePos = vec2(cos(iTime*speed),sin(iTime*speed));
