@@ -47,6 +47,8 @@ float mountainColor[3] = {0.5f,0.5f,0.5f};
 float mountainBrightness = 1.0f;
 bool showImGUIDemoWindow = true;
 
+float speed;
+
 unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned int* indicies, int numIndicies);
 
 int main() {
@@ -92,12 +94,16 @@ int main() {
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, NULL);
+		float time = (float)glfwGetTime();
 		//Set uniforms
 		/*glUniform3f(glGetUniformLocation(shader, "_Color"), triangleColor[0], triangleColor[1], triangleColor[2]);*/
 		shader.setVec3((shader, "_Color"), triangleColor[0], triangleColor[1], triangleColor[2]);
 		/*glUniform1f(glGetUniformLocation(shader,"_Brightness"), triangleBrightness);*/
 		shader.setFloat((shader, "_Brightness"), triangleBrightness);
+		shader.setFloat("iTime", time);
+		shader.setFloat("speed", speed);
 		glDrawArrays(GL_TRIANGLES, 0, 3);
+	
 
 		//Render UI
 		{
@@ -108,7 +114,10 @@ int main() {
 			ImGui::Begin("Settings");
 			ImGui::Checkbox("Show Demo Window", &showImGUIDemoWindow);
 			ImGui::ColorEdit3("Color", triangleColor);
-			ImGui::SliderFloat("Brightness", &triangleBrightness, 0.0f, 1.0f);
+			ImGui::SliderFloat("Sky Brightness", &triangleBrightness, 0.0f, 1.0f);
+			ImGui::ColorEdit3("Color", mountainColor);
+			ImGui::SliderFloat("Mountain Brightness", &mountainBrightness, 0.0f, 1.0f);
+			ImGui::SliderFloat("Sun Speed", &speed, 0.0f, 1.0f);
 			ImGui::End();
 			if (showImGUIDemoWindow) {
 				ImGui::ShowDemoWindow(&showImGUIDemoWindow);
