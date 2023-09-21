@@ -1,10 +1,10 @@
 #include "shader.h"
-#include "C:\Users\comma\OneDrive\Desktop\gpr200-fa2023-owen-stanclift\core\ew\external\glad.h"
+#include "..\ew\external\glad.h"
 namespace yourLib {
 	std::string loadShaderSourceFromFile(const std::string& filePath) {
 		std::ifstream fstream(filePath);
 		if (!fstream.is_open()) {
-			printf("Failed to load file %s", filePath);
+			printf("Failed to load file %s", filePath.c_str());
 			return {};
 		}
 		std::stringstream buffer;

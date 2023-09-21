@@ -24,36 +24,37 @@ struct Vertex {
 };
 Vertex vertices[4] = {
 	//x   //y  //z   //u	//v
-	{-0.5, -0.5, 0.0, 0.0,	0.0}, //Bottom left
-	{0.5, -0.5, 0.0, 1.0,	0.0 },//Bottom right
-{-0.5,  0.5, 0.0, 0.0,	1.0}, //Top left
-	 {0.5,  0.5,	0.0, 1.0,	1.0} // Top right
+	{-1, -1, 0.0, 0.0,	0.0}, //Bottom left
+	{1, -1, 0.0, 1.0,	0.0 },//Bottom right
+	{-1,  1, 0.0, 0.0,	1.0}, //Top left
+	{1,  1,	0.0, 1.0,	1.0} // Top right
 };
 
 unsigned int indicies[6] = {
-	0,1,2,
-	0,1,3
+	0,1,3,
+	0,3,2
 };
 
 const char* fragmentShaderSource;
 const char* vertexShaderSource;
 
 
-
-float triangleColor[3] = { 1.0f, 0.5f, 0.0f };
+//background
+float triangleColor[3] = { 0.0f, 0.5f, 1.0f };
 float triangleBrightness = 1.0f;
+//mountain
+float mountainColor[3] = {0.5f,0.5f,0.5f};
+float mountainBrightness = 1.0f;
 bool showImGUIDemoWindow = true;
 
 unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned int* indicies, int numIndicies);
 
 int main() {
 
-	std::string vertexShaderSource = yourLib::loadShaderSourceFromFile("assets/vertexShader.vert");
-	std::string fragmentShaderSource = yourLib::loadShaderSourceFromFile("assets/fragmentShader.frag");
 	
 	
 	/*unsigned int shader = createShaderProgram(vertexShaderSource.c_str(), fragmentShaderSource.c_str());*/
-	yourLib::Shader shader(vertexShaderSource, fragmentShaderSource);
+	
 	printf("Initializing...");
 	if (!glfwInit()) {
 		printf("GLFW failed to init!");
@@ -73,6 +74,7 @@ int main() {
 		return 1;
 	}
 
+	yourLib::Shader shader("assets/vertexShader.vert" , "assets/fragmentShader.frag");
 	//Initialize ImGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -95,7 +97,6 @@ int main() {
 		shader.setVec3((shader, "_Color"), triangleColor[0], triangleColor[1], triangleColor[2]);
 		/*glUniform1f(glGetUniformLocation(shader,"_Brightness"), triangleBrightness);*/
 		shader.setFloat((shader, "_Brightness"), triangleBrightness);
-
 		glDrawArrays(GL_TRIANGLES, 0, 3);
 
 		//Render UI
