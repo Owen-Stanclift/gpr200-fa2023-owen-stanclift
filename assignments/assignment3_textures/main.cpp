@@ -9,6 +9,7 @@
 #include <imgui_impl_opengl3.h>
 
 #include <ew/shader.h>
+#include <myLib/texture.h>
 
 struct Vertex {
 	float x, y, z;
@@ -59,18 +60,31 @@ int main() {
 	ImGui_ImplOpenGL3_Init();
 
 	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	ew::Shader backgroundShader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	//ew::Shader characterShader("assests/character.vert", "assests/character.frag");
 
 	unsigned int quadVAO = createVAO(vertices, 4, indices, 6);
+
+	unsigned int backgroundTexture = loadTexture("assets/background.png", GL_REPEAT, GL_LINEAR);
 
 	glBindVertexArray(quadVAO);
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
+
+	
+
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
 		//Set uniforms
 		shader.use();
+
+		backgroundShader.use();
+		glActiveTexture(GL_TEXTURE0);
+		glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+
+		//characterShader.use();
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 
