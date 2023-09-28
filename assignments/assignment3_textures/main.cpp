@@ -61,11 +61,15 @@ int main() {
 
 	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
 	ew::Shader backgroundShader("assets/vertexShader.vert", "assets/fragmentShader.frag");
-	//ew::Shader characterShader("assests/character.vert", "assests/character.frag");
+	ew::Shader noiseShader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	ew::Shader characterShader("assets/vertexShader.vert", "assets/fragmentShader.frag");
 
 	unsigned int quadVAO = createVAO(vertices, 4, indices, 6);
+	
 
 	unsigned int backgroundTexture = loadTexture("assets/background.png", GL_REPEAT, GL_LINEAR);
+	unsigned int noiseTexture = loadTexture("assets/noiseTexture.png", GL_REPEAT, GL_LINEAR);
+	unsigned int characterTexture = loadTexture("assets/character.png", GL_REPEAT, GL_LINEAR);
 
 	glBindVertexArray(quadVAO);
 
@@ -76,15 +80,26 @@ int main() {
 
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
-
+		float time = (float)glfwGetTime();
 		//Set uniforms
 		shader.use();
 
 		backgroundShader.use();
 		glActiveTexture(GL_TEXTURE0);
 		glBindTexture(GL_TEXTURE_2D, backgroundTexture);
+		noiseShader.use();
+		glActiveTexture(GL_TEXTURE1);
+		glBindTexture(GL_TEXTURE_2D, noiseTexture);
+		characterShader.use();
+		glActiveTexture(GL_TEXTURE2);
+		glBindTexture(GL_TEXTURE_2D, characterTexture);
 
-		//characterShader.use();
+		shader.setInt("_TextureA", 0);
+		shader.setInt("_NoiseTexture", 1);
+		shader.setInt("_TextureB", 2);
+		shader.setFloat("iTime", time);
+
+		
 
 		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, NULL);
 

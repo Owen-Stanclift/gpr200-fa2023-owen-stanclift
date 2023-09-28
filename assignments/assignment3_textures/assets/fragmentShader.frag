@@ -2,9 +2,19 @@
 out vec4 FragColor;
 in vec2 UV;
 
-
-uniform sampler2D _Texture;
+uniform float iTime;
+uniform sampler2D _TextureA,_TextureB,_NoiseTexture;
 void main()
 {
-	FragColor = texture(_Texture,UV);
+	
+	float noise = texture(_NoiseTexture,UV).r * (sin(iTime)*0.5);
+
+	vec2 uv = UV + noise * 0.1f;
+
+	vec4 colorA = texture(_TextureA,uv);
+	vec4 colorB = texture(_TextureB,UV);
+
+	vec3 color = mix(colorA.rgb,colorB.rgb,colorB.a * 0.8);
+
+	FragColor = vec4(color,UV);
 }
