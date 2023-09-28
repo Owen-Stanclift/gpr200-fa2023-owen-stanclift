@@ -69,7 +69,7 @@ int main() {
 
 	unsigned int backgroundTexture = loadTexture("assets/background.png", GL_REPEAT, GL_LINEAR);
 	unsigned int noiseTexture = loadTexture("assets/noiseTexture.png", GL_REPEAT, GL_LINEAR);
-	unsigned int characterTexture = loadTexture("assets/character.png", GL_REPEAT, GL_LINEAR);
+	unsigned int characterTexture = loadTexture("assets/character.png", GL_REPEAT, GL_NEAREST);
 
 	glBindVertexArray(quadVAO);
 
@@ -80,6 +80,9 @@ int main() {
 
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
+
+		
+
 		float time = (float)glfwGetTime();
 		//Set uniforms
 		shader.use();
@@ -92,6 +95,7 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, noiseTexture);
 		characterShader.use();
 		glActiveTexture(GL_TEXTURE2);
+		
 		glBindTexture(GL_TEXTURE_2D, characterTexture);
 
 		shader.setInt("_TextureA", 0);

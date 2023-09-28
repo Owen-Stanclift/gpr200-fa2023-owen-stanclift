@@ -13,8 +13,9 @@ void main()
 
 	vec4 colorA = texture(_TextureA,uv);
 	vec4 colorB = texture(_TextureB,UV);
+	
 
-	vec3 color = mix(colorA.rgb,colorB.rgb,colorB.a * 0.8);
+	vec3 color = mix(colorA.rgb,colorB.rgb,colorB.a * (0.5* cos(iTime) + 0.5));
 
 	FragColor = vec4(color,UV);
 }
