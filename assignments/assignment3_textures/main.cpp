@@ -62,7 +62,7 @@ int main() {
 	ew::Shader shader("assets/vertexShader.vert", "assets/fragmentShader.frag");
 	ew::Shader backgroundShader("assets/vertexShader.vert", "assets/fragmentShader.frag");
 	ew::Shader noiseShader("assets/vertexShader.vert", "assets/fragmentShader.frag");
-	ew::Shader characterShader("assets/vertexShader.vert", "assets/fragmentShader.frag");
+	ew::Shader characterShader("assets/charVertexShader.vert", "assets/fragmentShader.frag");
 
 	unsigned int quadVAO = createVAO(vertices, 4, indices, 6);
 	
@@ -84,6 +84,7 @@ int main() {
 		
 
 		float time = (float)glfwGetTime();
+		float scale = 0.5;
 		//Set uniforms
 		shader.use();
 
@@ -95,13 +96,13 @@ int main() {
 		glBindTexture(GL_TEXTURE_2D, noiseTexture);
 		characterShader.use();
 		glActiveTexture(GL_TEXTURE2);
-		
 		glBindTexture(GL_TEXTURE_2D, characterTexture);
 
 		shader.setInt("_TextureA", 0);
 		shader.setInt("_NoiseTexture", 1);
 		shader.setInt("_TextureB", 2);
 		shader.setFloat("iTime", time);
+		shader.setFloat("scale", scale);
 
 		
 
