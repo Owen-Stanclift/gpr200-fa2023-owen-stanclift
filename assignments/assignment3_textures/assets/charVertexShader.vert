@@ -2,14 +2,14 @@
 layout(location = 0) in vec3 vCharPos;
 layout(location = 1) in vec2 vCharUV;
 
-out vec2 UV;
+out vec2 charUV;
 
-uniform float scale;
+uniform float scale,iTime;
 
 
 void main(){
 	
-	UV = vCharUV;
-	gl_Position =  vec4(vCharPos,1.0);
+	charUV = vCharUV;
+	gl_Position =  vec4(vCharPos*scale + 0.5* cos(iTime) * 0.5,1.0);
 	
 }
