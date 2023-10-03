@@ -1,16 +1,15 @@
 #include <stdio.h>
 #include <math.h>
-
 #include <ew/external/glad.h>
 #include <ew/ewMath/ewMath.h>
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-
 #include <ew/shader.h>
 #include <ew/ewMath/vec3.h>
 #include <ew/procGen.h>
+#include <myLib/transformation.h>
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 
@@ -18,6 +17,7 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 const int SCREEN_WIDTH = 720;
 const int SCREEN_HEIGHT = 720;
 
+int NUM_CUBES = 4;
 int main() {
 	printf("Initializing...");
 	if (!glfwInit()) {
@@ -55,6 +55,8 @@ int main() {
 	
 	//Cube mesh
 	ew::Mesh cubeMesh(ew::createCube(0.5f));
+
+	Transform transform,cubeTransform;
 	
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -64,7 +66,7 @@ int main() {
 
 		//Set uniforms
 		shader.use();
-
+		shader.setMat4("_Model", transform.getModelMatrix());
 		//TODO: Set model matrix uniform
 
 		cubeMesh.draw();
@@ -80,6 +82,18 @@ int main() {
 
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+			for (size_t i = 0; i < NUM_CUBES; i++)
+			{
+				ImGui::PushID(i);
+				if (ImGui::CollapsingHeader("Transform"))
+				{
+					ImGui::DragFloat3("Postition", &cubeTransform.position.x, 0.05f);
+					ImGui::DragFloat3("Rotation", &cubeTransform.rotation.x, 1.0f);
+					ImGui::DragFloat3("Scale", &cubeTransform.scale.x, 0.05f);
+				}
+				ImGui::PopID();
+			}
 		}
 
 		glfwSwapBuffers(window);
