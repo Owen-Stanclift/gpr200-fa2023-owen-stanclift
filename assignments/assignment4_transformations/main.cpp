@@ -17,7 +17,7 @@ void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 const int SCREEN_WIDTH = 720;
 const int SCREEN_HEIGHT = 720;
 
-int NUM_CUBES = 4;
+const int NUM_CUBES = 4;
 int main() {
 	printf("Initializing...");
 	if (!glfwInit()) {
@@ -56,7 +56,12 @@ int main() {
 	//Cube mesh
 	ew::Mesh cubeMesh(ew::createCube(0.5f));
 
-	Transform transform,cubeTransform;
+	myLib::Transform cubeTransform[NUM_CUBES];
+	
+	cubeTransform[0].position = ew::Vec3(0.5, 0.5, 0);
+	cubeTransform[1].position = ew::Vec3(0.5, -0.5, 0);
+	cubeTransform[2].position = ew::Vec3(-0.5, 0.5, 0);
+	cubeTransform[3].position = ew::Vec3(-0.5, -0.5, 0);
 	
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -66,10 +71,14 @@ int main() {
 
 		//Set uniforms
 		shader.use();
-		shader.setMat4("_Model", transform.getModelMatrix());
+		for (size_t i = 0; i < NUM_CUBES; i++)
+		{
+			shader.setMat4("_Model", cubeTransform[i].getModelMatrix());
+			cubeMesh.draw();
+		}
 		//TODO: Set model matrix uniform
 
-		cubeMesh.draw();
+		
 
 		//Render UI
 		{
@@ -78,22 +87,23 @@ int main() {
 			ImGui::NewFrame();
 
 			ImGui::Begin("Transform");
-			ImGui::End();
-
-			ImGui::Render();
-			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
 			for (size_t i = 0; i < NUM_CUBES; i++)
 			{
 				ImGui::PushID(i);
 				if (ImGui::CollapsingHeader("Transform"))
 				{
-					ImGui::DragFloat3("Postition", &cubeTransform.position.x, 0.05f);
-					ImGui::DragFloat3("Rotation", &cubeTransform.rotation.x, 1.0f);
-					ImGui::DragFloat3("Scale", &cubeTransform.scale.x, 0.05f);
+					ImGui::DragFloat3("Postition", &cubeTransform[i].position.x, 0.05f);
+					ImGui::DragFloat3("Rotation", &cubeTransform[i].rotation.x, 1.0f);
+					ImGui::DragFloat3("Scale", &cubeTransform[i].scale.x, 0.05f);
 				}
 				ImGui::PopID();
 			}
+			ImGui::End();
+
+			ImGui::Render();
+			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+			
 		}
 
 		glfwSwapBuffers(window);
