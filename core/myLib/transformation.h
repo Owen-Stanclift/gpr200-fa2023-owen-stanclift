@@ -67,9 +67,9 @@ namespace myLib
 
 	inline ew::Mat4 LookAt(ew::Vec3 eye, ew::Vec3 target, ew::Vec3 up)
 	{
-		ew::Vec3 f = ew::Cross(eye, target);
-		ew::Vec3 r = ew::Cross(up, f);
-		up = ew::Cross(f, r);
+		ew::Vec3 f = ew::Normalize(eye-target);
+		ew::Vec3 r = ew::Normalize(ew::Cross(up, f));
+		up = ew::Normalize(ew::Cross(f, r));
 		
 		return ew::Mat4(
 			r.x, r.y, r.z, -(ew::Dot(r,eye)),
@@ -81,15 +81,16 @@ namespace myLib
 
 	inline ew::Mat4 Orthogrpahic(float height, float aspect,float near, float far)
 	{
-		float r = aspect / 2;
+		float width = aspect * height;
+		float r = width / 2;
 		float t = height / 2;
 		float l = -r;
 		float b = -t;
 
 		return ew::Mat4(
-			2/(r-l),0,0,-(r+l/r-l),
-			0,2/(t-b), 0, -(t+b/t-b),
-			0,0,-2/(far-near), -(far+near/far-near),
+			2/(r-l),0,0,-((r+l)/(r-l)),
+			0,2/(t-b), 0, -((t+b)/(t-b)),
+			0,0,-2/(far-near), -((far+near)/(far-near)),
 			0,0,0,1
 		);
 	};
@@ -112,7 +113,7 @@ namespace myLib
 
 		ew::Mat4 getModelMatrix() const
 		{
-			return Translate(position) * (RotateX(rotation.x) * RotateY(rotation.y) * RotateZ(rotation.z) * Scale(scale));
+			return myLib::Translate(position) * (RotateX(rotation.x) * RotateY(rotation.y) * RotateZ(rotation.z) * myLib::Scale(scale));
 		};
 	};
 
@@ -128,7 +129,7 @@ namespace myLib
 		float orthoSize;
 		ew::Mat4 ViewMatrix()
 		{
-			return LookAt(position, target,(0,1,0));
+			return LookAt(position, target,ew::Vec3 (0,1,0));
 		};
 		ew::Mat4 ProjectionMatrix()
 		{
@@ -137,7 +138,7 @@ namespace myLib
 				return Orthogrpahic(orthoSize, aspectRatio, nearPlane, farPlane);
 			}
 			else
-				return Perspective(fov, aspectRatio, nearPlane, farPlane);
+				return Perspective(ew::Radians(fov), aspectRatio, nearPlane, farPlane);
 		};
 	};
 }

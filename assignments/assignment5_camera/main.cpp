@@ -72,6 +72,7 @@ int main() {
 	camera.position = ew::Vec3(0, 0, 5);
 	camera.target = ew::Vec3(0, 0, 0);
 	camera.fov = 60;
+	camera.aspectRatio = (float) SCREEN_WIDTH / SCREEN_HEIGHT;
 	camera.orthoSize = 6;
 	camera.nearPlane = 0.1;
 	camera.farPlane = 100;
