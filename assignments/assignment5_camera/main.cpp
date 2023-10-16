@@ -12,8 +12,10 @@
 #include <ew/procGen.h>
 #include <ew/transform.h>
 #include <myLib/transformation.h>
+#include <myLib/camera.h>
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
+void moveCamera(GLFWwindow* window, Camera* camera, CameraControls* controls);
 
 //Projection will account for aspect ratio!
 const int SCREEN_WIDTH = 1080;
