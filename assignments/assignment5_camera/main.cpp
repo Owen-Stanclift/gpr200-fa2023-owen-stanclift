@@ -15,15 +15,84 @@
 #include <myLib/camera.h>
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
-void moveCamera(GLFWwindow* window, Camera* camera, CameraControls* controls);
+
 
 //Projection will account for aspect ratio!
 const int SCREEN_WIDTH = 1080;
 const int SCREEN_HEIGHT = 720;
+bool firstMouse;
 
 const int NUM_CUBES = 4;
 myLib::Transform cubeTransforms[NUM_CUBES];
 myLib::Camera camera;
+myLib::CameraControls cameraControls;
+
+void moveCamera(GLFWwindow* window, myLib::Camera* camera, myLib::CameraControls* controls,float deltaTime)
+{
+	if (!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2));
+	{
+		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		firstMouse = true;
+		return;
+	}
+	glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
+	double mouseX, mouseY;
+	glfwGetCursorPos(window, &mouseX, &mouseY);
+
+	if (firstMouse)
+	{
+		firstMouse = false;
+		controls->prevMouseX = mouseX;
+		controls->prevMouseY = mouseY;
+	}
+	
+	double deltaMouseX = mouseX - controls->prevMouseX;
+	double deltaMouseY = mouseY - controls->prevMouseY;
+	float yaw, pitch;
+	yaw = controls->yaw + deltaMouseX;
+	pitch = controls->pit + deltaMouseY;
+
+	controls->prevMouseX=mouseX;
+	controls->prevMouseY=mouseY;
+	
+	
+
+	ew::Vec3 forward = ew::Vec3(ew::Radians(cos(yaw) * cos(pitch)), ew::Radians(sin(pitch)), ew::Radians(sin(yaw)*sin(pitch)));
+
+	camera->target = camera->position + forward;
+
+	ew::Vec3 up = ew::Vec3(0, 1, 0);
+	ew::Vec3 right = ew::Normalize(ew::Cross(forward,up));
+	up = ew::Normalize(ew::Cross(right,forward));
+
+	if (glfwGetKey(window, GLFW_KEY_W))
+	{
+		camera->position += forward * controls->moveSpeed * deltaTime;
+	}
+	if (glfwGetKey(window, GLFW_KEY_S))
+	{
+		camera->position -= forward * controls->moveSpeed * deltaTime;
+	}
+	if (glfwGetKey(window, GLFW_KEY_D))
+	{
+		camera->position += right * controls->moveSpeed * deltaTime;
+	}
+	if (glfwGetKey(window, GLFW_KEY_A))
+	{
+		camera->position -= right * controls->moveSpeed * deltaTime;
+	}
+	if (glfwGetKey(window, GLFW_KEY_Q))
+	{
+		camera->position += up * controls->moveSpeed * deltaTime;
+	}
+	if (glfwGetKey(window, GLFW_KEY_E))
+	{
+		camera->position -= up * controls->moveSpeed * deltaTime;
+	}
+
+	camera->target = camera->position + forward;
+}
 
 int main() {
 	printf("Initializing...");
@@ -78,9 +147,14 @@ int main() {
 	camera.orthoSize = 6;
 	camera.nearPlane = 0.1;
 	camera.farPlane = 100;
-
+	float prevTime = 0;
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
+
+		float time = (float)glfwGetTime();
+		float deltaTime = time - prevTime;
+		prevTime = time;
+		moveCamera(window, &camera, &cameraControls,deltaTime);
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		//Clear both color buffer AND depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
