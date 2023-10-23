@@ -29,7 +29,7 @@ myLib::CameraControls cameraControls;
 
 void moveCamera(GLFWwindow* window, myLib::Camera* camera, myLib::CameraControls* controls,float deltaTime)
 {
-	if (!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2));
+	if (!glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_2))
 	{
 		glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 		firstMouse = true;
@@ -49,16 +49,22 @@ void moveCamera(GLFWwindow* window, myLib::Camera* camera, myLib::CameraControls
 	
 	double deltaMouseX = mouseX - controls->prevMouseX;
 	double deltaMouseY = mouseY - controls->prevMouseY;
-	float yaw, pitch;
-	yaw = controls->yaw + deltaMouseX;
-	pitch = controls->pit + deltaMouseY;
+
+
+	controls->yaw += deltaMouseX * 0.1;
+	controls->pit -= deltaMouseY * 0.1;
+
+	float yaw = ew::Radians(controls->yaw);
+	float pit = ew::Radians(controls->pit);
+	//if(pitch < 90 && pitch > -90)
+	
 
 	controls->prevMouseX=mouseX;
 	controls->prevMouseY=mouseY;
 	
 	
 
-	ew::Vec3 forward = ew::Vec3(ew::Radians(cos(yaw) * cos(pitch)), ew::Radians(sin(pitch)), ew::Radians(sin(yaw)*sin(pitch)));
+	ew::Vec3 forward = ew::Vec3(cos(yaw) * cos(pit), sin(pit), sin(yaw)*cos(pit));
 
 	camera->target = camera->position + forward;
 
@@ -147,6 +153,7 @@ int main() {
 	camera.orthoSize = 6;
 	camera.nearPlane = 0.1;
 	camera.farPlane = 100;
+	cameraControls.yaw = -90;
 	float prevTime = 0;
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -154,7 +161,7 @@ int main() {
 		float time = (float)glfwGetTime();
 		float deltaTime = time - prevTime;
 		prevTime = time;
-		moveCamera(window, &camera, &cameraControls,deltaTime);
+		moveCamera(window, &camera, &cameraControls, deltaTime);
 		glClearColor(0.3f, 0.4f, 0.9f, 1.0f);
 		//Clear both color buffer AND depth buffer
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
