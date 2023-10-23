@@ -54,9 +54,14 @@ void moveCamera(GLFWwindow* window, myLib::Camera* camera, myLib::CameraControls
 	controls->yaw += deltaMouseX * 0.1;
 	controls->pit -= deltaMouseY * 0.1;
 
+	if (controls->pit < -89)
+		controls->pit = -89;
+	if (controls->pit > 89)
+		controls->pit = 89;
+
 	float yaw = ew::Radians(controls->yaw);
 	float pit = ew::Radians(controls->pit);
-	//if(pitch < 90 && pitch > -90)
+	
 	
 
 	controls->prevMouseX=mouseX;
@@ -154,6 +159,7 @@ int main() {
 	camera.nearPlane = 0.1;
 	camera.farPlane = 100;
 	cameraControls.yaw = -90;
+	cameraControls.pit = 0;
 	float prevTime = 0;
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -209,6 +215,19 @@ int main() {
 				ImGui::DragFloat("FOV", &camera.fov,0.05f);
 			ImGui::DragFloat("Near Plane", &camera.nearPlane, 0.05f);
 			ImGui::DragFloat("Far Plane", &camera.farPlane, 0.05f);
+
+			if (ImGui::Button("Reset:"))
+			{
+				camera.position = ew::Vec3(0, 0, 5);
+				camera.target = ew::Vec3(0, 0, 0);
+				camera.fov = 60;
+				camera.aspectRatio = (float)SCREEN_WIDTH / SCREEN_HEIGHT;
+				camera.orthoSize = 6;
+				camera.nearPlane = 0.1;
+				camera.farPlane = 100;
+				cameraControls.yaw = -90;
+				cameraControls.pit = 0;
+			}
 			ImGui::End();
 			
 			ImGui::Render();
