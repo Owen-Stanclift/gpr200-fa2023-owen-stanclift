@@ -1,13 +1,11 @@
 #include <stdio.h>
 #include <math.h>
-
 #include <ew/external/glad.h>
 #include <ew/ewMath/ewMath.h>
 #include <GLFW/glfw3.h>
 #include <imgui.h>
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
-
 #include <ew/shader.h>
 #include <ew/texture.h>
 #include <ew/procGen.h>
@@ -86,11 +84,21 @@ int main() {
 	ew::MeshData sphereMeshData = myLib::createSphere(0.5f,64);
 	ew::Mesh sphereMesh(sphereMeshData);
 
+	ew::MeshData clyinderMeshData = myLib::createCylinder(2.0f, 1.0f, 20);
+	ew::Mesh cylinderMesh(sphereMeshData);
+
+	ew::MeshData planeMeshData = myLib::createPlane(0.5f, 10);
+	ew::Mesh planeMesh(planeMeshData);
+
 	//Initialize transforms
 	ew::Transform cubeTransform;
 	ew::Transform sphereTransform;
+	ew::Transform cylinderTransform;
+	ew::Transform planeTransform;
 
 	sphereTransform.position = ew::Vec3(1.0f, 0.0f, 0.0f);
+	cylinderTransform.position = ew::Vec3(2.0f, 0.0f, 0.0f);
+	planeTransform.position = ew::Vec3(3.0f, 0.0f, 0.0f);
 
 	resetCamera(camera,cameraController);
 
@@ -130,6 +138,12 @@ int main() {
 
 		shader.setMat4("_Model", sphereTransform.getModelMatrix());
 		sphereMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
+
+		shader.setMat4("_Model", cylinderTransform.getModelMatrix());
+		cylinderMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
+
+		shader.setMat4("_Model", planeTransform.getModelMatrix());
+		planeMesh.draw((ew::DrawMode)appSettings.drawAsPoints);
 
 		//Render UI
 		{
