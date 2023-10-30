@@ -12,7 +12,7 @@
 #include <ew/transform.h>
 #include <ew/camera.h>
 #include <ew/cameraController.h>
-#include <myLib/procGen.cpp>
+#include <myLib/procGen.h>
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void resetCamera(ew::Camera& camera, ew::CameraController& cameraController);
@@ -84,8 +84,8 @@ int main() {
 	ew::MeshData sphereMeshData = myLib::createSphere(0.5f,64);
 	ew::Mesh sphereMesh(sphereMeshData);
 
-	ew::MeshData clyinderMeshData = myLib::createCylinder(2.0f, 1.0f, 20);
-	ew::Mesh cylinderMesh(sphereMeshData);
+	ew::MeshData cylinderMeshData = myLib::createCylinder(2.0f, 1.0f, 20);
+	ew::Mesh cylinderMesh(cylinderMeshData);
 
 	ew::MeshData planeMeshData = myLib::createPlane(0.5f, 10);
 	ew::Mesh planeMesh(planeMeshData);
