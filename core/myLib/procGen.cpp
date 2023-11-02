@@ -91,6 +91,14 @@ ew::MeshData createCylinder(float height, float radius, int numSegments)
 	for (int i = 0; i < columns; i++)
 	{
 		int start = sideStart + i;
+		for (int i = 0; i <= numSegments; i++)
+		{
+			float theta = i * thetaStep;
+			v.pos.x = cos(theta) * radius;
+			v.pos.z = sin(theta) * radius;
+			v.pos.y = topY;
+			mesh.vertices.push_back(v);
+		}
 
 		mesh.indices.push_back(start);
 		mesh.indices.push_back(start + 1);
