@@ -97,8 +97,8 @@ int main() {
 	ew::Transform planeTransform;
 
 	sphereTransform.position = ew::Vec3(1.0f, 0.0f, 0.0f);
-	cylinderTransform.position = ew::Vec3(2.0f, 0.0f, 0.0f);
-	planeTransform.position = ew::Vec3(3.0f, 0.0f, 0.0f);
+	cylinderTransform.position = ew::Vec3(3.0f, 0.0f, 0.0f);
+	planeTransform.position = ew::Vec3(5.0f, 0.0f, 0.0f);
 
 	resetCamera(camera,cameraController);
 
