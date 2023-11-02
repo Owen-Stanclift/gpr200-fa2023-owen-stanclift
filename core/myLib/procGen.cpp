@@ -72,22 +72,17 @@ namespace myLib
 
 		mesh.vertices.push_back({ ew::Vec3(0,topY,0) });
 
-		for (int i = 0; i <= numSegments; i++)
+		for (int i = 0; i <= numSegments; i++) //Top ring up
 		{
 			float theta = i * thetaStep;
 			v.pos.x = cos(theta) * radius;
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = topY;
+			v.normal = (ew::Vec3(0, 1, 0));
 			mesh.vertices.push_back(v);
 		}
-		for (int i = 0; i <= numSegments; i++)
-		{
-			float theta = i * thetaStep;
-			v.pos.x = cos(theta) * radius;
-			v.pos.z = sin(theta) * radius;
-			v.pos.y = topY;
-			mesh.vertices.push_back(v);
-		}
+
+
 
 		for (int i = 0; i <= numSegments; i++)
 		{
@@ -97,15 +92,19 @@ namespace myLib
 		}
 
 		float bottomY = -topY;
-		for (int i = 0; i <= numSegments; i++)
+
+	
+		for (int i = 0; i <= numSegments; i++) //Bottom ring down
 		{
 			float theta = i * thetaStep;
 
 			v.pos.x = cos(theta) * radius;
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = bottomY;
+			v.normal = (ew::Vec3(0, -1, 0));
 			mesh.vertices.push_back(v);
 		}
+
 		mesh.vertices.push_back({ ew::Vec3(0,bottomY,0) });
 		for (int i = 0; i <= numSegments; i++)
 		{
@@ -119,7 +118,6 @@ namespace myLib
 		for (int i = 0; i < columns; i++)
 		{
 			int start = sideStart + i;
-
 			mesh.indices.push_back(start);
 			mesh.indices.push_back(start + 1);
 			mesh.indices.push_back(start + columns);
@@ -128,8 +126,25 @@ namespace myLib
 			mesh.indices.push_back(start + columns + 1);
 			mesh.indices.push_back(start + columns);
 		}
-	
+		for (int i = 0; i <= numSegments; i++)  //Top ring forward
+		{
+			float theta = i * thetaStep;
+			v.pos.x = cos(theta) * radius;
+			v.pos.z = sin(theta) * radius;
+			v.pos.y = topY;
+			v.normal = (ew::Vec3(cos(theta), 0, 0));
+			mesh.vertices.push_back(v);
+		}
+		for (int i = 0; i <= numSegments; i++) //Bottom ring forward
+		{
+			float theta = i * thetaStep;
 
+			v.pos.x = cos(theta) * radius;
+			v.pos.z = sin(theta) * radius;
+			v.pos.y = bottomY;
+			v.normal = (ew::Vec3(cos(theta), 0, 0));
+			mesh.vertices.push_back(v);
+		}
 		return mesh;
 	}
 	ew::MeshData createPlane(float size, int subdivisions)
