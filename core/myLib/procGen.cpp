@@ -80,6 +80,14 @@ namespace myLib
 			v.pos.y = topY;
 			mesh.vertices.push_back(v);
 		}
+		for (int i = 0; i <= numSegments; i++)
+		{
+			float theta = i * thetaStep;
+			v.pos.x = cos(theta) * radius;
+			v.pos.z = sin(theta) * radius;
+			v.pos.y = topY;
+			mesh.vertices.push_back(v);
+		}
 
 		for (int i = 0; i <= numSegments; i++)
 		{
