@@ -117,7 +117,7 @@ namespace myLib
 			start = numSegments + 1;
 			mesh.indices.push_back(start + i + 1);
 			mesh.indices.push_back(mesh.vertices.size() - 1);
-			mesh.indices.push_back(start + i);
+			mesh.indices.push_back(start + i);//
 		}
 		int sideStart = 1;
 		int columns = start;
