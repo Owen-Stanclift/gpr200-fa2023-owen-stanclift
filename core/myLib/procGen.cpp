@@ -44,7 +44,6 @@ namespace myLib
 				mesh.indices.push_back(start);
 				mesh.indices.push_back(start + 1);
 				mesh.indices.push_back(start + columns);
-
 				mesh.indices.push_back(start + 1);
 				mesh.indices.push_back(start + columns + 1);
 				mesh.indices.push_back(start + columns);
@@ -110,6 +109,13 @@ namespace myLib
 		{
 			start = numSegments+1;
 			mesh.indices.push_back(start + i+1);
+			mesh.indices.push_back(mesh.vertices.size() - 1);
+			mesh.indices.push_back(start + i);
+		}
+		for (int i = 0; i <= numSegments; i++)
+		{
+			start = numSegments + 1;
+			mesh.indices.push_back(start + i + 1);
 			mesh.indices.push_back(mesh.vertices.size() - 1);
 			mesh.indices.push_back(start + i);
 		}
