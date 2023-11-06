@@ -74,7 +74,9 @@ namespace myLib
 		int start = 1;
 		float topY = height/2;
 
-		mesh.vertices.push_back({ ew::Vec3(0,topY,0) });
+		v.pos = { ew::Vec3(0,topY,0) };
+		v.uv = { 0.5f,0.5f };
+		mesh.vertices.push_back(v);
 
 		for (int i = 0; i <= numSegments; i++) //Top ring up
 		{
@@ -130,7 +132,9 @@ namespace myLib
 			v.uv = ew::Vec2{ (float)(0.5 * sin(theta) + 0.5), (float)(0.5 * cos(theta) + 0.5) };
 			mesh.vertices.push_back(v);
 		}
-		mesh.vertices.push_back({ ew::Vec3(0,bottomY,0) });
+		v.pos = { ew::Vec3(0,bottomY,0) };
+		v.uv = {0.5f,0.5f};
+		mesh.vertices.push_back(v);
 		for (int i = 0; i <= numSegments; i++)
 		{
 			start = mesh.vertices.size()-2-numSegments;
