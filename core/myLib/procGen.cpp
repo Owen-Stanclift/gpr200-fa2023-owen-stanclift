@@ -24,6 +24,8 @@ namespace myLib
 				v.pos.x = radius * cos(theta) * sin(phi);
 				v.pos.y = radius * cos(phi);
 				v.pos.z = radius * sin(theta) * sin(phi);
+				v.normal = (ew::Vec3(v.pos));
+				v.uv = ((float)col / numSegments);
 				mesh.vertices.push_back(v);
 			}
 		}
@@ -79,6 +81,7 @@ namespace myLib
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = topY;
 			v.normal = (ew::Vec3(0, 1, 0));
+			v.uv = ((float) i/numSegments);
 			mesh.vertices.push_back(v);
 		}
 
@@ -90,9 +93,29 @@ namespace myLib
 			mesh.indices.push_back(0);
 			mesh.indices.push_back(start + i + 1);
 		}
+		for (int i = 0; i <= numSegments; i++)  //Top ring forward
+		{
+			float theta = i * thetaStep;
+			v.pos.x = cos(theta) * radius;
+			v.pos.z = sin(theta) * radius;
+			v.pos.y = topY;
+			v.normal = (ew::Vec3(cos(theta), 0, 0));
+			v.uv = ((float)i / numSegments);
+			mesh.vertices.push_back(v);
+		}
 
 		float bottomY = -topY;
+		for (int i = 0; i <= numSegments; i++) //Bottom ring forward
+		{
+			float theta = i * thetaStep;
 
+			v.pos.x = cos(theta) * radius;
+			v.pos.z = sin(theta) * radius;
+			v.pos.y = bottomY;
+			v.normal = (ew::Vec3(cos(theta), 0, 0));
+			v.uv = ((float)i / numSegments);
+			mesh.vertices.push_back(v);
+		}
 	
 		for (int i = 0; i <= numSegments; i++) //Bottom ring down
 		{
@@ -102,49 +125,36 @@ namespace myLib
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = bottomY;
 			v.normal = (ew::Vec3(0, -1, 0));
+			v.uv = ((float)i / numSegments);
 			mesh.vertices.push_back(v);
 		}
-
 		mesh.vertices.push_back({ ew::Vec3(0,bottomY,0) });
 		for (int i = 0; i <= numSegments; i++)
 		{
-			start = numSegments+1;
+			start = mesh.vertices.size()-2-numSegments;
 			mesh.indices.push_back(start + i+1);
 			mesh.indices.push_back(mesh.vertices.size() - 1);
 			mesh.indices.push_back(start + i);
 		}
-		int sideStart = 1;
-		int columns = start;
+		
+		int sideStart = (numSegments)+1;
+		int columns = numSegments+1;
 		for (int i = 0; i < columns; i++)
 		{
 			int start = sideStart + i;
 			mesh.indices.push_back(start);
 			mesh.indices.push_back(start + 1);
 			mesh.indices.push_back(start + columns);
-
 			mesh.indices.push_back(start + 1);
 			mesh.indices.push_back(start + columns + 1);
 			mesh.indices.push_back(start + columns);
-		}
-		for (int i = 0; i <= numSegments; i++)  //Top ring forward
-		{
-			float theta = i * thetaStep;
-			v.pos.x = cos(theta) * radius;
-			v.pos.z = sin(theta) * radius;
-			v.pos.y = topY;
-			v.normal = (ew::Vec3(cos(theta), 0, 0));
-			mesh.vertices.push_back(v);
-		}
-		for (int i = 0; i <= numSegments; i++) //Bottom ring forward
-		{
-			float theta = i * thetaStep;
 
-			v.pos.x = cos(theta) * radius;
-			v.pos.z = sin(theta) * radius;
-			v.pos.y = bottomY;
-			v.normal = (ew::Vec3(cos(theta), 0, 0));
+			v.uv = ((float) i+1/ columns);
 			mesh.vertices.push_back(v);
+
 		}
+
+
 		return mesh;
 	}
 	ew::MeshData createPlane(float size, int subdivisions)
@@ -160,6 +170,8 @@ namespace myLib
 			{
 				v.pos.x = size * (col / subdivisions);
 				v.pos.z = -size * (row / subdivisions);
+				v.normal = (ew::Vec3(0,1,0));
+				v.uv = (float)  col/ subdivisions;
 				mesh.vertices.push_back(v);
 			}
 
