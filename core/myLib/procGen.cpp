@@ -25,7 +25,7 @@ namespace myLib
 				v.pos.y = radius * cos(phi);
 				v.pos.z = radius * sin(theta) * sin(phi);
 				v.normal = (ew::Vec3(v.pos));
-				v.uv = ((float)col / numSegments);
+				v.uv = ew::Vec2({(float) col/numSegments, (float) row/numSegments});
 				mesh.vertices.push_back(v);
 			}
 		}
@@ -35,6 +35,8 @@ namespace myLib
 			mesh.indices.push_back(sideStart + i);
 			mesh.indices.push_back(poleStart + i);
 			mesh.indices.push_back(sideStart + i + 1);
+
+			
 		}
 
 		for (row = 1; row < numSegments - 1; row++)
@@ -81,7 +83,7 @@ namespace myLib
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = topY;
 			v.normal = (ew::Vec3(0, 1, 0));
-			v.uv = ((float) i/numSegments);
+			v.uv = ew::Vec2{ (float) (0.5*sin(theta)+0.5), (float)(0.5 * cos(theta) + 0.5) };
 			mesh.vertices.push_back(v);
 		}
 
@@ -99,8 +101,8 @@ namespace myLib
 			v.pos.x = cos(theta) * radius;
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = topY;
-			v.normal = (ew::Vec3(cos(theta), 0, 0));
-			v.uv = ((float)i / numSegments);
+			v.normal = (ew::Vec3(cos(theta), 0, sin(theta)));
+			v.uv = ew::Vec2{ (float)i / numSegments, 1.0f };
 			mesh.vertices.push_back(v);
 		}
 
@@ -112,8 +114,8 @@ namespace myLib
 			v.pos.x = cos(theta) * radius;
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = bottomY;
-			v.normal = (ew::Vec3(cos(theta), 0, 0));
-			v.uv = ((float)i / numSegments);
+			v.normal = (ew::Vec3(cos(theta), 0, sin(theta)));
+			v.uv = ew::Vec2{(float)i / numSegments, 0.0f };
 			mesh.vertices.push_back(v);
 		}
 	
@@ -125,7 +127,7 @@ namespace myLib
 			v.pos.z = sin(theta) * radius;
 			v.pos.y = bottomY;
 			v.normal = (ew::Vec3(0, -1, 0));
-			v.uv = ((float)i / numSegments);
+			v.uv = ew::Vec2{ (float)(0.5 * sin(theta) + 0.5), (float)(0.5 * cos(theta) + 0.5) };
 			mesh.vertices.push_back(v);
 		}
 		mesh.vertices.push_back({ ew::Vec3(0,bottomY,0) });
@@ -148,8 +150,6 @@ namespace myLib
 			mesh.indices.push_back(start + 1);
 			mesh.indices.push_back(start + columns + 1);
 			mesh.indices.push_back(start + columns);
-
-			v.uv = ((float) i+1/ columns);
 			mesh.vertices.push_back(v);
 
 		}
@@ -168,17 +168,17 @@ namespace myLib
 		{
 			for (col = 0; col <= subdivisions; col++)
 			{
-				v.pos.x = size * (col / subdivisions);
-				v.pos.z = -size * (row / subdivisions);
+				v.pos.x = size *  ((float)col / subdivisions);
+				v.pos.z = -size *  ((float)row / subdivisions);
 				v.normal = (ew::Vec3(0,1,0));
-				v.uv = (float)  col/ subdivisions;
+				v.uv = (ew::Vec2((float) col / subdivisions, (float) row / subdivisions));
 				mesh.vertices.push_back(v);
 			}
 
 		}
-		for (row = 0; row <= subdivisions; row++)
+		for (row = 0; row < subdivisions; row++)
 		{
-			for (col = 0; col <= subdivisions; col++)
+			for (col = 0; col < subdivisions; col++)
 			{
 				int start = row * columns + col;
 				mesh.indices.push_back(start);
