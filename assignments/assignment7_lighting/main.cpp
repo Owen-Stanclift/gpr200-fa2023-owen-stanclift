@@ -27,6 +27,19 @@ ew::Vec3 bgColor = ew::Vec3(0.1f);
 ew::Camera camera;
 ew::CameraController cameraController;
 
+struct Light
+{
+	ew::Vec3 position;
+	ew::Vec3 color;
+};
+struct Material
+{
+	float ambientK;
+	float diffuseK;
+	float specular;
+	float shininess;
+};
+
 int main() {
 	printf("Initializing...");
 	if (!glfwInit()) {
@@ -34,14 +47,7 @@ int main() {
 		return 1;
 	}
 
-	struct Light
-	{
 
-	};
-	struct Material
-	{
-
-	};
 
 	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Camera", NULL, NULL);
 	if (window == NULL) {
@@ -75,6 +81,7 @@ int main() {
 	ew::Mesh planeMesh(ew::createPlane(5.0f, 5.0f, 10));
 	ew::Mesh sphereMesh(ew::createSphere(0.5f, 64));
 	ew::Mesh cylinderMesh(ew::createCylinder(0.5f, 1.0f, 32));
+	Light lights[4];
 
 	//Initialize transforms
 	ew::Transform cubeTransform;
@@ -84,6 +91,8 @@ int main() {
 	planeTransform.position = ew::Vec3(0, -1.0, 0);
 	sphereTransform.position = ew::Vec3(-1.5f, 0.0f, 0.0f);
 	cylinderTransform.position = ew::Vec3(1.5f, 0.0f, 0.0f);
+	lights[0].position = ew::Vec3(1.0f, 1.0f, 1.0f);
+	lights[0].color = ew::Vec3(255, 255,255);
 
 	resetCamera(camera,cameraController);
 
@@ -121,6 +130,9 @@ int main() {
 		cylinderMesh.draw();
 
 		//TODO: Render point lights
+
+		shader.setVec3("_Light.position[0]", lights[0].position);
+		shader.setVec3("_Light.color[0]", lights[0].color);
 
 		//Render UI
 		{
