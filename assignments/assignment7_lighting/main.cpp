@@ -34,6 +34,15 @@ int main() {
 		return 1;
 	}
 
+	struct Light
+	{
+
+	};
+	struct Material
+	{
+
+	};
+
 	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Camera", NULL, NULL);
 	if (window == NULL) {
 		printf("GLFW failed to create window");
