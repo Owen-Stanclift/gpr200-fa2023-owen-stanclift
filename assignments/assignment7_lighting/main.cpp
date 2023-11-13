@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <math.h>
-
 #include <ew/external/glad.h>
 #include <ew/ewMath/ewMath.h>
 #include <GLFW/glfw3.h>
@@ -82,6 +81,7 @@ int main() {
 	ew::Mesh sphereMesh(ew::createSphere(0.5f, 64));
 	ew::Mesh cylinderMesh(ew::createCylinder(0.5f, 1.0f, 32));
 	Light lights[4];
+	Material material;
 
 	//Initialize transforms
 	ew::Transform cubeTransform;
@@ -91,9 +91,18 @@ int main() {
 	planeTransform.position = ew::Vec3(0, -1.0, 0);
 	sphereTransform.position = ew::Vec3(-1.5f, 0.0f, 0.0f);
 	cylinderTransform.position = ew::Vec3(1.5f, 0.0f, 0.0f);
-	lights[0].position = ew::Vec3(1.0f, 1.0f, 1.0f);
-	lights[0].color = ew::Vec3(255, 255,255);
-
+	lights[0].position = ew::Vec3(1.0f, 1.0f, 0.0f);
+	lights[0].color = ew::Vec3(1,0 ,0);
+	lights[1].position = ew::Vec3(-1.0f, 1.0f, 0.0f);
+	lights[1].color = ew::Vec3(0, 1, 0);
+	lights[2].position = ew::Vec3(1.0f, 1.0f, 1.0f);
+	lights[2].color = ew::Vec3(0, 0, 1);
+	lights[3].position = ew::Vec3(-1.0f, 1.0f, 1.0f);
+	lights[3].color = ew::Vec3(1, 0, 1);
+	material.ambientK = 0.2f;
+	material.diffuseK = 0.2f;
+	material.specular = 0.2f;
+	material.shininess = 3.0f;
 	resetCamera(camera,cameraController);
 
 	while (!glfwWindowShouldClose(window)) {
@@ -131,9 +140,21 @@ int main() {
 
 		//TODO: Render point lights
 
-		shader.setVec3("_Light.position[0]", lights[0].position);
-		shader.setVec3("_Light.color[0]", lights[0].color);
+	
+		shader.setVec3("_Lights[0].position", lights[0].position);
+		shader.setVec3("_Lights[0].color", lights[0].color);
+		shader.setVec3("_Lights[1].position", lights[1].position);
+		shader.setVec3("_Lights[1].color", lights[1].color);
+		shader.setVec3("_Lights[2].position", lights[2].position);
+		shader.setVec3("_Lights[2].color", lights[2].color);
+		shader.setVec3("_Lights[3].position", lights[3].position);
+		shader.setVec3("_Lights[3].color", lights[3].color);
 
+		shader.setFloat("_Material.ambientK", material.ambientK);
+		shader.setFloat("_Material.diffuseK", material.diffuseK);
+		shader.setFloat("_Material.specular", material.specular);
+		shader.setFloat("_Material.shininess", material.shininess);
+		shader.setVec3("cameraPos", camera.position);
 		//Render UI
 		{
 			ImGui_ImplGlfw_NewFrame();
@@ -159,6 +180,35 @@ int main() {
 					resetCamera(camera, cameraController);
 				}
 			}
+		
+			if (ImGui::CollapsingHeader("Light 1")) 
+			{
+				ImGui::DragFloat3("Position1", &lights[0].position.x,0.1f);
+				ImGui::DragFloat3("Color1", &lights[0].color.x, 0.1f);
+			}
+			if (ImGui::CollapsingHeader("Light 2"))
+			{
+				ImGui::DragFloat3("Position2", &lights[1].position.x, 0.1f);
+				ImGui::DragFloat3("Color2", &lights[1].color.x, 0.1f);
+			}
+			if (ImGui::CollapsingHeader("Light 3"))
+			{
+				ImGui::DragFloat3("Position3", &lights[2].position.x, 0.1f);
+				ImGui::DragFloat3("Color3", &lights[2].color.x, 0.1f);
+			}
+			if (ImGui::CollapsingHeader("Light 4"))
+			{
+				ImGui::DragFloat3("Position4", &lights[3].position.x, 0.1f);
+				ImGui::DragFloat3("Color4", &lights[3].color.x, 0.1f);
+			}
+			if (ImGui::CollapsingHeader("Material"))
+			{
+				ImGui::DragFloat("Ambient", material.ambientK);
+				ImGui::DragFloat("Diffuse", material.diffuseK);
+				ImGui::DragFloat("Specular", material.specular);
+				ImGui::DragFloat("Shininess", material.shininess);
+			}
+			
 
 			ImGui::ColorEdit3("BG color", &bgColor.x);
 			ImGui::End();
