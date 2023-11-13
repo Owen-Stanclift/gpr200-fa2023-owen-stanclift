@@ -39,6 +39,8 @@ struct Material
 	float shininess;
 };
 
+int numLights = 4;
+
 int main() {
 	printf("Initializing...");
 	if (!glfwInit()) {
@@ -73,12 +75,14 @@ int main() {
 	glEnable(GL_DEPTH_TEST);
 
 	ew::Shader shader("assets/defaultLit.vert", "assets/defaultLit.frag");
+	ew::Shader lightShader("assets/unLit.vert", "assets/unLit.frag");
 	unsigned int brickTexture = ew::loadTexture("assets/brick_color.jpg",GL_REPEAT,GL_LINEAR);
 
 	//Create cube
 	ew::Mesh cubeMesh(ew::createCube(1.0f));
 	ew::Mesh planeMesh(ew::createPlane(5.0f, 5.0f, 10));
 	ew::Mesh sphereMesh(ew::createSphere(0.5f, 64));
+	ew::Mesh lightMesh(ew::createSphere(0.1f, 20));
 	ew::Mesh cylinderMesh(ew::createCylinder(0.5f, 1.0f, 32));
 	Light lights[4];
 	Material material;
@@ -88,17 +92,33 @@ int main() {
 	ew::Transform planeTransform;
 	ew::Transform sphereTransform;
 	ew::Transform cylinderTransform;
+
+	ew::Transform lightSphere1;
+	ew::Transform lightSphere2;
+	ew::Transform lightSphere3;
+	ew::Transform lightSphere4;
+
 	planeTransform.position = ew::Vec3(0, -1.0, 0);
 	sphereTransform.position = ew::Vec3(-1.5f, 0.0f, 0.0f);
 	cylinderTransform.position = ew::Vec3(1.5f, 0.0f, 0.0f);
+
+
 	lights[0].position = ew::Vec3(1.0f, 1.0f, 0.0f);
 	lights[0].color = ew::Vec3(1,0 ,0);
+
 	lights[1].position = ew::Vec3(-1.0f, 1.0f, 0.0f);
 	lights[1].color = ew::Vec3(0, 1, 0);
+	
+
 	lights[2].position = ew::Vec3(1.0f, 1.0f, 1.0f);
 	lights[2].color = ew::Vec3(0, 0, 1);
+	
+
 	lights[3].position = ew::Vec3(-1.0f, 1.0f, 1.0f);
-	lights[3].color = ew::Vec3(1, 0, 1);
+	lights[3].color = ew::Vec3(1, 1, 0);
+
+
+
 	material.ambientK = 0.2f;
 	material.diffuseK = 0.2f;
 	material.specular = 0.2f;
@@ -138,8 +158,19 @@ int main() {
 		shader.setMat4("_Model", cylinderTransform.getModelMatrix());
 		cylinderMesh.draw();
 
-		//TODO: Render point lights
+		lightShader.use();
+		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix()* camera.ViewMatrix());
 
+		for (int i = 0; i < numLights; i++)
+		{
+			lightSphere1.position = lights[i].position;
+			lightShader.setMat4("_Model", lightSphere1.getModelMatrix());
+			lightShader.setVec3("_Color", lights[i].color);
+			lightMesh.draw();
+		}
+
+		//TODO: Render point lights
+		shader.use();
 	
 		shader.setVec3("_Lights[0].position", lights[0].position);
 		shader.setVec3("_Lights[0].color", lights[0].color);
@@ -180,33 +211,28 @@ int main() {
 					resetCamera(camera, cameraController);
 				}
 			}
-		
-			if (ImGui::CollapsingHeader("Light 1")) 
+			ImGui::SliderInt("NumLights(0-4)", &numLights,0,4);
+			if (numLights > 0)
 			{
-				ImGui::DragFloat3("Position1", &lights[0].position.x,0.1f);
-				ImGui::DragFloat3("Color1", &lights[0].color.x, 0.1f);
-			}
-			if (ImGui::CollapsingHeader("Light 2"))
-			{
-				ImGui::DragFloat3("Position2", &lights[1].position.x, 0.1f);
-				ImGui::DragFloat3("Color2", &lights[1].color.x, 0.1f);
-			}
-			if (ImGui::CollapsingHeader("Light 3"))
-			{
-				ImGui::DragFloat3("Position3", &lights[2].position.x, 0.1f);
-				ImGui::DragFloat3("Color3", &lights[2].color.x, 0.1f);
-			}
-			if (ImGui::CollapsingHeader("Light 4"))
-			{
-				ImGui::DragFloat3("Position4", &lights[3].position.x, 0.1f);
-				ImGui::DragFloat3("Color4", &lights[3].color.x, 0.1f);
+				for (size_t i = 0; i < numLights; i++)
+				{
+					ImGui::PushID(i);
+					{
+						if (ImGui::CollapsingHeader("Light"))
+						{
+							ImGui::DragFloat3("Position1", &lights[i].position.x, 0.1f);
+							ImGui::DragFloat3("Color1", &lights[i].color.x, 0.1f);
+						}
+					}
+					ImGui::PopID();
+				}
 			}
 			if (ImGui::CollapsingHeader("Material"))
 			{
-				ImGui::DragFloat("Ambient", material.ambientK);
-				ImGui::DragFloat("Diffuse", material.diffuseK);
-				ImGui::DragFloat("Specular", material.specular);
-				ImGui::DragFloat("Shininess", material.shininess);
+				ImGui::DragFloat("Ambient", &material.ambientK,0.1f);
+				ImGui::DragFloat("Diffuse", &material.diffuseK,0.1f);
+				ImGui::DragFloat("Specular", &material.specular,0.1f);
+				ImGui::DragFloat("Shininess", &material.shininess,0.1f);
 			}
 			
 
