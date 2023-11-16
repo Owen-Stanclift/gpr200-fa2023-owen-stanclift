@@ -93,36 +93,30 @@ int main() {
 	ew::Transform sphereTransform;
 	ew::Transform cylinderTransform;
 
-	ew::Transform lightSphere1;
-	ew::Transform lightSphere2;
-	ew::Transform lightSphere3;
-	ew::Transform lightSphere4;
+	ew::Transform* lightSphere = new ew::Transform [numLights];
 
 	planeTransform.position = ew::Vec3(0, -1.0, 0);
 	sphereTransform.position = ew::Vec3(-1.5f, 0.0f, 0.0f);
 	cylinderTransform.position = ew::Vec3(1.5f, 0.0f, 0.0f);
-
 
 	lights[0].position = ew::Vec3(1.0f, 1.0f, 0.0f);
 	lights[0].color = ew::Vec3(1,0 ,0);
 
 	lights[1].position = ew::Vec3(-1.0f, 1.0f, 0.0f);
 	lights[1].color = ew::Vec3(0, 1, 0);
-	
 
 	lights[2].position = ew::Vec3(1.0f, 1.0f, 1.0f);
 	lights[2].color = ew::Vec3(0, 0, 1);
 	
-
 	lights[3].position = ew::Vec3(-1.0f, 1.0f, 1.0f);
 	lights[3].color = ew::Vec3(1, 1, 0);
-
 
 
 	material.ambientK = 0.2f;
 	material.diffuseK = 0.2f;
 	material.specular = 0.2f;
 	material.shininess = 3.0f;
+
 	resetCamera(camera,cameraController);
 
 	while (!glfwWindowShouldClose(window)) {
@@ -139,6 +133,17 @@ int main() {
 		//RENDER
 		glClearColor(bgColor.x, bgColor.y,bgColor.z,1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		lightShader.use();
+		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
+
+		for (int i = 0; i < numLights; i++)
+		{
+			lightSphere[i].position = lights[i].position;
+			lightShader.setMat4("_Model", lightSphere[i].getModelMatrix());
+			lightShader.setVec3("_Color", lights[i].color);
+			lightMesh.draw();
+		}
+
 
 		shader.use();
 		glBindTexture(GL_TEXTURE_2D, brickTexture);
@@ -158,33 +163,21 @@ int main() {
 		shader.setMat4("_Model", cylinderTransform.getModelMatrix());
 		cylinderMesh.draw();
 
-		lightShader.use();
-		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix()* camera.ViewMatrix());
-
-		for (int i = 0; i < numLights; i++)
-		{
-			lightSphere1.position = lights[i].position;
-			lightShader.setMat4("_Model", lightSphere1.getModelMatrix());
-			lightShader.setVec3("_Color", lights[i].color);
-			lightMesh.draw();
-		}
-
 		//TODO: Render point lights
-		shader.use();
-	
-		shader.setVec3("_Lights[0].position", lights[0].position);
-		shader.setVec3("_Lights[0].color", lights[0].color);
-		shader.setVec3("_Lights[1].position", lights[1].position);
-		shader.setVec3("_Lights[1].color", lights[1].color);
-		shader.setVec3("_Lights[2].position", lights[2].position);
-		shader.setVec3("_Lights[2].color", lights[2].color);
-		shader.setVec3("_Lights[3].position", lights[3].position);
-		shader.setVec3("_Lights[3].color", lights[3].color);
-
-		shader.setFloat("_Material.ambientK", material.ambientK);
+		if (numLights > 0)
+		{
+			for (int i = 0; i < numLights; i++)
+			{
+				shader.setInt("numLights", numLights);
+				shader.setVec3("_Lights[" + std::to_string(i) + "].position", lights[i].position);
+				shader.setVec3("_Lights[" + std::to_string(i) + "].color", lights[i].color);
+			}
+				shader.setFloat("_Material.ambientK", material.ambientK);
 		shader.setFloat("_Material.diffuseK", material.diffuseK);
 		shader.setFloat("_Material.specular", material.specular);
 		shader.setFloat("_Material.shininess", material.shininess);
+		}
+	
 		shader.setVec3("cameraPos", camera.position);
 		//Render UI
 		{
@@ -214,7 +207,7 @@ int main() {
 			ImGui::SliderInt("NumLights(0-4)", &numLights,0,4);
 			if (numLights > 0)
 			{
-				for (size_t i = 0; i < numLights; i++)
+				for (int i = 0; i < numLights; i++)
 				{
 					ImGui::PushID(i);
 					{
