@@ -164,19 +164,19 @@ int main() {
 		cylinderMesh.draw();
 
 		//TODO: Render point lights
-		if (numLights > 0)
-		{
+		shader.setInt("numLights", numLights);
+
 			for (int i = 0; i < numLights; i++)
 			{
-				shader.setInt("numLights", numLights);
+				
 				shader.setVec3("_Lights[" + std::to_string(i) + "].position", lights[i].position);
 				shader.setVec3("_Lights[" + std::to_string(i) + "].color", lights[i].color);
 			}
-				shader.setFloat("_Material.ambientK", material.ambientK);
+		shader.setFloat("_Material.ambientK", material.ambientK);
 		shader.setFloat("_Material.diffuseK", material.diffuseK);
 		shader.setFloat("_Material.specular", material.specular);
 		shader.setFloat("_Material.shininess", material.shininess);
-		}
+
 	
 		shader.setVec3("cameraPos", camera.position);
 		//Render UI
@@ -213,20 +213,21 @@ int main() {
 					{
 						if (ImGui::CollapsingHeader("Light"))
 						{
-							ImGui::DragFloat3("Position1", &lights[i].position.x, 0.1f);
-							ImGui::DragFloat3("Color1", &lights[i].color.x, 0.1f);
+							ImGui::DragFloat3("Position", &lights[i].position.x, 0.1f);
+							ImGui::DragFloat3("Color", &lights[i].color.x, 0.1f);
 						}
 					}
 					ImGui::PopID();
 				}
+				if (ImGui::CollapsingHeader("Material"))
+				{
+					ImGui::SliderFloat("Ambient", &material.ambientK, 0, 1);
+					ImGui::SliderFloat("Diffuse", &material.diffuseK, 0, 1);
+					ImGui::SliderFloat("Specular", &material.specular, 0, 1);
+					ImGui::SliderFloat("Shininess", &material.shininess, 2, 10);
+				}
 			}
-			if (ImGui::CollapsingHeader("Material"))
-			{
-				ImGui::DragFloat("Ambient", &material.ambientK,0.1f);
-				ImGui::DragFloat("Diffuse", &material.diffuseK,0.1f);
-				ImGui::DragFloat("Specular", &material.specular,0.1f);
-				ImGui::DragFloat("Shininess", &material.shininess,0.1f);
-			}
+
 			
 
 			ImGui::ColorEdit3("BG color", &bgColor.x);
