@@ -39,6 +39,13 @@ struct Material
 	float shininess;
 };
 
+struct Particle
+{
+	ew::Vec2 position, velocity;
+	ew::Vec3 color;
+	float life;
+};
+
 int numLights = 4;
 
 int main() {
