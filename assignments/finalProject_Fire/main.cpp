@@ -12,7 +12,7 @@
 #include <ew/transform.h>
 #include <ew/camera.h>
 #include <ew/cameraController.h>
-
+#include <myLib/procGen.h>
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void resetCamera(ew::Camera& camera, ew::CameraController& cameraController);
@@ -46,9 +46,8 @@ struct Particle
 	float life;
 };
 
-int numLights = 4;
-
-int main() {
+int main() 
+{
 	printf("Initializing...");
 	if (!glfwInit()) {
 		printf("GLFW failed to init!");
@@ -81,50 +80,16 @@ int main() {
 	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);
 
-	ew::Shader shader("assets/defaultLit.vert", "assets/defaultLit.frag");
+	ew::Shader shader("assets/fireLit.vert", "assets/fireLit.frag");
 	ew::Shader lightShader("assets/unLit.vert", "assets/unLit.frag");
-	unsigned int brickTexture = ew::loadTexture("assets/brick_color.jpg",GL_REPEAT,GL_LINEAR);
 
-	//Create cube
-	ew::Mesh cubeMesh(ew::createCube(1.0f));
-	ew::Mesh planeMesh(ew::createPlane(5.0f, 5.0f, 10));
-	ew::Mesh sphereMesh(ew::createSphere(0.5f, 64));
-	ew::Mesh lightMesh(ew::createSphere(0.1f, 20));
-	ew::Mesh cylinderMesh(ew::createCylinder(0.5f, 1.0f, 32));
-	Light lights[4];
-	Material material;
+	myLib::createFire(10.0f, 50);
 
-	//Initialize transforms
-	ew::Transform cubeTransform;
-	ew::Transform planeTransform;
-	ew::Transform sphereTransform;
-	ew::Transform cylinderTransform;
+	ew::Transform fireTransform;
 
-	ew::Transform* lightSphere = new ew::Transform [numLights];
+	fireTransform.position = ew::Vec3(0, 1.0, 0);
 
-	planeTransform.position = ew::Vec3(0, -1.0, 0);
-	sphereTransform.position = ew::Vec3(-1.5f, 0.0f, 0.0f);
-	cylinderTransform.position = ew::Vec3(1.5f, 0.0f, 0.0f);
-
-	lights[0].position = ew::Vec3(1.0f, 1.0f, 0.0f);
-	lights[0].color = ew::Vec3(1,0 ,0);
-
-	lights[1].position = ew::Vec3(-1.0f, 1.0f, 0.0f);
-	lights[1].color = ew::Vec3(0, 1, 0);
-
-	lights[2].position = ew::Vec3(1.0f, 1.0f, 1.0f);
-	lights[2].color = ew::Vec3(0, 0, 1);
-	
-	lights[3].position = ew::Vec3(-1.0f, 1.0f, 1.0f);
-	lights[3].color = ew::Vec3(1, 1, 0);
-
-
-	material.ambientK = 0.2f;
-	material.diffuseK = 0.2f;
-	material.specular = 0.2f;
-	material.shininess = 3.0f;
-
-	resetCamera(camera,cameraController);
+	resetCamera(camera, cameraController);
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
@@ -138,9 +103,9 @@ int main() {
 		cameraController.Move(window, &camera, deltaTime);
 
 		//RENDER
-		glClearColor(bgColor.x, bgColor.y,bgColor.z,1.0f);
+		glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		lightShader.use();
+				lightShader.use();
 		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
 
 		for (int i = 0; i < numLights; i++)
@@ -245,28 +210,4 @@ int main() {
 		}
 
 		glfwSwapBuffers(window);
-	}
-	printf("Shutting down...");
 }
-
-void framebufferSizeCallback(GLFWwindow* window, int width, int height)
-{
-	glViewport(0, 0, width, height);
-	SCREEN_WIDTH = width;
-	SCREEN_HEIGHT = height;
-}
-
-void resetCamera(ew::Camera& camera, ew::CameraController& cameraController) {
-	camera.position = ew::Vec3(0, 0, 5);
-	camera.target = ew::Vec3(0);
-	camera.fov = 60.0f;
-	camera.orthoHeight = 6.0f;
-	camera.nearPlane = 0.1f;
-	camera.farPlane = 100.0f;
-	camera.orthographic = false;
-
-	cameraController.yaw = 0.0f;
-	cameraController.pitch = 0.0f;
-}
-
-

@@ -198,4 +198,67 @@ namespace myLib
 
 		return mesh;
 	}
+	ew::MeshData createFire(float radius, int numSegments)
+	{
+		ew::MeshData mesh;
+		ew::Vertex v;
+		int i, row, col, start;
+		float thetaStep = (2 * ew::PI) / numSegments;
+		float phiStep = (ew::PI) / numSegments;
+
+		int poleStart = 1;
+		int sideStart = numSegments + 1;
+		int columns = numSegments + 1;
+
+
+		for (row = 0; row <= numSegments; row++)
+		{
+			float phi = row * phiStep;
+			for (col = 0; col <= numSegments; col++)
+			{
+				float theta = col * thetaStep;
+				v.pos.x = radius * cos(theta) * sin(phi);
+				v.pos.y = radius * cos(phi);
+				v.pos.z = radius * sin(theta) * sin(phi);
+				v.normal = (ew::Vec3(v.pos));
+				v.uv = ew::Vec2({ (float)col / numSegments, (float)row / numSegments });
+				mesh.vertices.push_back(v);
+			}
+		}
+
+		for (i = 0; i < numSegments; i++)
+		{
+			mesh.indices.push_back(sideStart + i);
+			mesh.indices.push_back(poleStart + i);
+			mesh.indices.push_back(sideStart + i + 1);
+
+
+		}
+
+		for (row = 1; row < numSegments - 1; row++)
+		{
+			for (col = 0; col < numSegments; col++)
+			{
+				start = row * columns + col;
+
+				mesh.indices.push_back(start);
+				mesh.indices.push_back(start + 1);
+				mesh.indices.push_back(start + columns);
+
+				mesh.indices.push_back(start + 1);
+				mesh.indices.push_back(start + columns + 1);
+				mesh.indices.push_back(start + columns);
+			}
+		}
+		poleStart = (numSegments * numSegments) + numSegments;
+		sideStart = (numSegments * numSegments) - 1;
+		for (i = 0; i < numSegments; i++)
+		{
+			mesh.indices.push_back(sideStart + i + 1);
+			mesh.indices.push_back(poleStart + i);
+			mesh.indices.push_back(sideStart + i);
+		}
+
+		return mesh;
+	}
 }
