@@ -46,7 +46,7 @@ struct Particle
 	float life;
 };
 
-int main() 
+int main()
 {
 	printf("Initializing...");
 	if (!glfwInit()) {
@@ -83,7 +83,7 @@ int main()
 	ew::Shader shader("assets/fireLit.vert", "assets/fireLit.frag");
 	ew::Shader lightShader("assets/unLit.vert", "assets/unLit.frag");
 
-	myLib::createFire(10.0f, 50);
+	ew::Mesh fireMesh = myLib::createFire(10.0f, 50);
 
 	ew::Transform fireTransform;
 
@@ -105,51 +105,44 @@ int main()
 		//RENDER
 		glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-				lightShader.use();
-		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
+		/*lightShader.use();
+		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());*/
 
-		for (int i = 0; i < numLights; i++)
-		{
-			lightSphere[i].position = lights[i].position;
-			lightShader.setMat4("_Model", lightSphere[i].getModelMatrix());
-			lightShader.setVec3("_Color", lights[i].color);
-			lightMesh.draw();
-		}
+		//for (int i = 0; i < numLights; i++)
+		//{
+		//	lightSphere[i].position = lights[i].position;
+		//	lightShader.setMat4("_Model", lightSphere[i].getModelMatrix());
+		//	lightShader.setVec3("_Color", lights[i].color);
+		//	lightMesh.draw();
+		//}
 
 
 		shader.use();
-		glBindTexture(GL_TEXTURE_2D, brickTexture);
+		//glBindTexture(GL_TEXTURE_2D, brickTexture);
 		shader.setInt("_Texture", 0);
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
 
 		//Draw shapes
-		shader.setMat4("_Model", cubeTransform.getModelMatrix());
-		cubeMesh.draw();
 
-		shader.setMat4("_Model", planeTransform.getModelMatrix());
-		planeMesh.draw();
 
-		shader.setMat4("_Model", sphereTransform.getModelMatrix());
-		sphereMesh.draw();
-
-		shader.setMat4("_Model", cylinderTransform.getModelMatrix());
-		cylinderMesh.draw();
+		shader.setMat4("_Model", fireTransform.getModelMatrix());
+		fireMesh.draw();
 
 		//TODO: Render point lights
-		shader.setInt("numLights", numLights);
+		//shader.setInt("numLights", numLights);
 
-			for (int i = 0; i < numLights; i++)
-			{
-				
-				shader.setVec3("_Lights[" + std::to_string(i) + "].position", lights[i].position);
-				shader.setVec3("_Lights[" + std::to_string(i) + "].color", lights[i].color);
-			}
-		shader.setFloat("_Material.ambientK", material.ambientK);
-		shader.setFloat("_Material.diffuseK", material.diffuseK);
-		shader.setFloat("_Material.specular", material.specular);
-		shader.setFloat("_Material.shininess", material.shininess);
+		//	for (int i = 0; i < numLights; i++)
+		//	{
+		//		
+		//		shader.setVec3("_Lights[" + std::to_string(i) + "].position", lights[i].position);
+		//		shader.setVec3("_Lights[" + std::to_string(i) + "].color", lights[i].color);
+		//	}
+		//shader.setFloat("_Material.ambientK", material.ambientK);
+		//shader.setFloat("_Material.diffuseK", material.diffuseK);
+		//shader.setFloat("_Material.specular", material.specular);
+		//shader.setFloat("_Material.shininess", material.shininess);
 
-	
+
 		shader.setVec3("cameraPos", camera.position);
 		//Render UI
 		{
@@ -176,38 +169,39 @@ int main()
 					resetCamera(camera, cameraController);
 				}
 			}
-			ImGui::SliderInt("NumLights(0-4)", &numLights,0,4);
-			if (numLights > 0)
-			{
-				for (int i = 0; i < numLights; i++)
+			/*	ImGui::SliderInt("NumLights(0-4)", &numLights,0,4);
+				if (numLights > 0)
 				{
-					ImGui::PushID(i);
+					for (int i = 0; i < numLights; i++)
 					{
-						if (ImGui::CollapsingHeader("Light"))
+						ImGui::PushID(i);
 						{
-							ImGui::DragFloat3("Position", &lights[i].position.x, 0.1f);
-							ImGui::DragFloat3("Color", &lights[i].color.x, 0.1f);
+							if (ImGui::CollapsingHeader("Light"))
+							{
+								ImGui::DragFloat3("Position", &lights[i].position.x, 0.1f);
+								ImGui::DragFloat3("Color", &lights[i].color.x, 0.1f);
+							}
 						}
+						ImGui::PopID();
 					}
-					ImGui::PopID();
-				}
-				if (ImGui::CollapsingHeader("Material"))
-				{
-					ImGui::SliderFloat("Ambient", &material.ambientK, 0, 1);
-					ImGui::SliderFloat("Diffuse", &material.diffuseK, 0, 1);
-					ImGui::SliderFloat("Specular", &material.specular, 0, 1);
-					ImGui::SliderFloat("Shininess", &material.shininess, 2, 10);
-				}
-			}
+					if (ImGui::CollapsingHeader("Material"))
+					{
+						ImGui::SliderFloat("Ambient", &material.ambientK, 0, 1);
+						ImGui::SliderFloat("Diffuse", &material.diffuseK, 0, 1);
+						ImGui::SliderFloat("Specular", &material.specular, 0, 1);
+						ImGui::SliderFloat("Shininess", &material.shininess, 2, 10);
+					}
+				}*/
 
-			
+
 
 			ImGui::ColorEdit3("BG color", &bgColor.x);
 			ImGui::End();
-			
+
 			ImGui::Render();
 			ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 		}
 
 		glfwSwapBuffers(window);
+	}
 }
