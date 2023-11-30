@@ -198,18 +198,16 @@ namespace myLib
 
 		return mesh;
 	}
-	ew::MeshData createFire(float radius, int numSegments)
+	ew::MeshData createFire(float radius, int numSegments, float strength)
 	{
 		ew::MeshData mesh;
 		ew::Vertex v;
 		int i, row, col, start;
 		float thetaStep = (2 * ew::PI) / numSegments;
 		float phiStep = (ew::PI) / numSegments;
-
 		int poleStart = 1;
 		int sideStart = numSegments + 1;
 		int columns = numSegments + 1;
-
 
 		for (row = 0; row <= numSegments; row++)
 		{
