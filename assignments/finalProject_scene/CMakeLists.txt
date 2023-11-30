@@ -16,10 +16,10 @@ add_custom_target(copyAssetsFP ALL COMMAND ${CMAKE_COMMAND} -E copy_directory
 ${CMAKE_CURRENT_SOURCE_DIR}/assets/
 ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/assets/)
 
-install(FILES ${FINALPROJECT_INC} DESTINATION include/finalProject_Fire)
-add_executable(finalProject_Fire ${FINALPROJECT_SRC} ${FINALPROJECT_INC} ${FINALPROJECT_ASSETS})
-target_link_libraries(finalProject_Fire PUBLIC core IMGUI)
-target_include_directories(finalProject_Fire PUBLIC ${CORE_INC_DIR} ${stb_INCLUDE_DIR})
+install(FILES ${FINALPROJECT_INC} DESTINATION include/finalProject_scene)
+add_executable(finalProject_scene ${FINALPROJECT_SRC} ${FINALPROJECT_INC} ${FINALPROJECT_ASSETS})
+target_link_libraries(finalProject_scene PUBLIC core IMGUI)
+target_include_directories(finalProject_scene PUBLIC ${CORE_INC_DIR} ${stb_INCLUDE_DIR})
 
 #Trigger asset copy when assignment7_lighting is built
-add_dependencies(finalProject_Fire copyAssetsFP)
+add_dependencies(finalProject_scene copyAssetsFP)
