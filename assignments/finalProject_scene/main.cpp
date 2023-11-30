@@ -83,7 +83,7 @@ int main()
 	ew::Shader shader("assets/fireLit.vert", "assets/fireLit.frag");
 	ew::Shader lightShader("assets/unLit.vert", "assets/unLit.frag");
 
-	ew::Mesh fireMesh = myLib::createFire(10.0f, 50);
+	ew::Mesh fireMesh = myLib::createFire(10.0f, 50,10.0f);
 
 	ew::Transform fireTransform;
 
@@ -204,4 +204,24 @@ int main()
 
 		glfwSwapBuffers(window);
 	}
+}
+
+void framebufferSizeCallback(GLFWwindow* window, int width, int height)
+{
+	glViewport(0, 0, width, height);
+	SCREEN_WIDTH = width;
+	SCREEN_HEIGHT = height;
+}
+
+void resetCamera(ew::Camera& camera, ew::CameraController& cameraController) {
+	camera.position = ew::Vec3(0, 0, 5);
+	camera.target = ew::Vec3(0);
+	camera.fov = 60.0f;
+	camera.orthoHeight = 6.0f;
+	camera.nearPlane = 0.1f;
+	camera.farPlane = 100.0f;
+	camera.orthographic = false;
+
+	cameraController.yaw = 0.0f;
+	cameraController.pitch = 0.0f;
 }
