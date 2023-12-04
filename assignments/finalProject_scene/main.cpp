@@ -47,6 +47,10 @@ struct Particle
 	float life;
 };
 
+struct Vertex {
+	float x, y, z;
+};
+
 float skyboxVertices[] = {        
 	-1.0f,  1.0f, -1.0f,
 	-1.0f, -1.0f, -1.0f,
@@ -122,10 +126,6 @@ int main()
 	faces.push_back("assets/front.jpg");
 	faces.push_back("assets/back.jpg");
 	unsigned int skybox = loadTextures(faces);
-
-	
-
-
 
 	//Initialize ImGUI
 	IMGUI_CHECKVERSION();
@@ -299,4 +299,28 @@ void resetCamera(ew::Camera& camera, ew::CameraController& cameraController) {
 
 	cameraController.yaw = 0.0f;
 	cameraController.pitch = 0.0f;
+}
+
+unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned short* indicesData, int numIndices) {
+	unsigned int vao;
+	glGenVertexArrays(1, &vao);
+	glBindVertexArray(vao);
+
+	//Vertex Buffer Object 
+	unsigned int vbo;
+	glGenBuffers(1, &vbo);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Vertex) * numVertices, vertexData, GL_STATIC_DRAW);
+
+	//Element Buffer Object
+	unsigned int ebo;
+	glGenBuffers(1, &ebo);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned short) * numIndices, indicesData, GL_STATIC_DRAW);
+
+	//Position attribute
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (const void*)offsetof(Vertex, x));
+	glEnableVertexAttribArray(0);
+
+	return vao;
 }
