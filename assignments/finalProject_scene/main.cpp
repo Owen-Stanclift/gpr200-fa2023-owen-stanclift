@@ -80,8 +80,9 @@ int main()
 	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);
 
-	ew::Shader shader("assets/fireLit.vert", "assets/fireLit.frag");
-	//ew::Shader lightShader("assets/unLit.vert", "assets/unLit.frag");
+	
+	ew::Shader shader("assets/unLit.vert", "assets/unLit.frag");
+	ew::Shader fireShader("assets/fireLit.vert", "assets/fireLit.frag");
 	unsigned int noiseTexture = ew::loadTexture("assets/noiseTexture.png", GL_REPEAT, GL_LINEAR);
 
 	float fireRadius = 0.5f;
