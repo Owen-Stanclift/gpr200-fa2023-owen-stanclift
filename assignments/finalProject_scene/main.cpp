@@ -13,6 +13,7 @@
 #include <ew/camera.h>
 #include <ew/cameraController.h>
 #include <myLib/procGen.h>
+#include <am/texture.h>
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void resetCamera(ew::Camera& camera, ew::CameraController& cameraController);
@@ -46,6 +47,50 @@ struct Particle
 	float life;
 };
 
+float skyboxVertices[] = {        
+	-1.0f,  1.0f, -1.0f,
+	-1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	-1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f, -1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
+
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+
+	-1.0f, -1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f,
+	-1.0f, -1.0f,  1.0f,
+
+	-1.0f,  1.0f, -1.0f,
+	 1.0f,  1.0f, -1.0f,
+	 1.0f,  1.0f,  1.0f,
+	 1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f,  1.0f,
+	-1.0f,  1.0f, -1.0f,
+
+	-1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f, -1.0f,
+	 1.0f, -1.0f, -1.0f,
+	-1.0f, -1.0f,  1.0f,
+	 1.0f, -1.0f,  1.0f
+};
+
 int main()
 {
 	printf("Initializing...");
@@ -69,6 +114,19 @@ int main()
 		return 1;
 	}
 
+	std::vector<std::string> faces;
+	faces.push_back("assets/right.jpg");
+	faces.push_back("assets/left.jpg");
+	faces.push_back("assets/top.jpg");
+	faces.push_back("assets/bottom.jpg");
+	faces.push_back("assets/front.jpg");
+	faces.push_back("assets/back.jpg");
+	unsigned int skybox = loadTextures(faces);
+
+	
+
+
+
 	//Initialize ImGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -83,6 +141,12 @@ int main()
 	ew::Shader shader("assets/fireLit.vert", "assets/fireLit.frag");
 	ew::Shader lightShader("assets/unLit.vert", "assets/unLit.frag");
 
+	ew::Shader skyboxShader("assets/skybox.vert", "assets/skybox.frag");
+
+	GLuint skyboxVAO;
+
+	glGenVertexArrays(1, &skyboxVAO);
+
 	ew::Mesh fireMesh = myLib::createFire(10.0f, 50,10.0f);
 
 	ew::Transform fireTransform;
@@ -93,6 +157,7 @@ int main()
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
+
 
 		float time = (float)glfwGetTime();
 		float deltaTime = time - prevTime;
@@ -105,6 +170,16 @@ int main()
 		//RENDER
 		glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+		glDepthMask(GL_FALSE);
+		skyboxShader.use();
+		skyboxShader.setMat4("projection", camera.ProjectionMatrix());
+		skyboxShader.setMat4("view", camera.ViewMatrix());
+
+		glBindVertexArray(skyboxVAO);
+		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
+		glDepthMask(GL_TRUE);
 		/*lightShader.use();
 		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());*/
 
