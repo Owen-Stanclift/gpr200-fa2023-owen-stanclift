@@ -81,20 +81,22 @@ int main()
 	glEnable(GL_DEPTH_TEST);
 
 	ew::Shader shader("assets/fireLit.vert", "assets/fireLit.frag");
-	ew::Shader lightShader("assets/unLit.vert", "assets/unLit.frag");
+	//ew::Shader lightShader("assets/unLit.vert", "assets/unLit.frag");
 	unsigned int noiseTexture = ew::loadTexture("assets/noiseTexture.png", GL_REPEAT, GL_LINEAR);
 
-	ew::MeshData fireMeshData = myLib::createFire(10.0f, 50,10.0f);
-	ew::Mesh fireMesh(fireMeshData);
+	ew::Mesh fireMesh(myLib::createFire(0.5f, 60, 5));
 
 	ew::Transform fireTransform;
 
 	fireTransform.position = ew::Vec3(0, 1.0, 0);
+	ew::Vec3 fireColor1 = ew::Vec3(1.0, 0.0, 0.0);
+	ew::Vec3 fireColor2 = ew::Vec3(1.0, 1.0, 0.0);
 
 	resetCamera(camera, cameraController);
 
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
+
 
 		float time = (float)glfwGetTime();
 		float deltaTime = time - prevTime;
@@ -123,11 +125,14 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, noiseTexture);
 		shader.setInt("_Texture", 0);
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
+		
 
 		//Draw shapes
 
 
 		shader.setMat4("_Model", fireTransform.getModelMatrix());
+		shader.setVec3("_ColorA", fireColor1);
+		shader.setVec3("_ColorB", fireColor2);
 		fireMesh.draw();
 
 		//TODO: Render point lights
@@ -170,6 +175,7 @@ int main()
 				if (ImGui::Button("Reset")) {
 					resetCamera(camera, cameraController);
 				}
+
 			}
 			/*	ImGui::SliderInt("NumLights(0-4)", &numLights,0,4);
 				if (numLights > 0)
