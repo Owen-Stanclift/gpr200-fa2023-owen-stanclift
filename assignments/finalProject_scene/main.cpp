@@ -84,7 +84,8 @@ int main()
 	//ew::Shader lightShader("assets/unLit.vert", "assets/unLit.frag");
 	unsigned int noiseTexture = ew::loadTexture("assets/noiseTexture.png", GL_REPEAT, GL_LINEAR);
 
-	ew::Mesh fireMesh(myLib::createFire(0.5f, 60, 5));
+	float fireRadius = 0.5f;
+	ew::Mesh fireMesh(myLib::createFire(fireRadius, 60, 5));
 
 	ew::Transform fireTransform;
 
@@ -125,6 +126,8 @@ int main()
 		glBindTexture(GL_TEXTURE_2D, noiseTexture);
 		shader.setInt("_Texture", 0);
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
+		shader.setFloat("_time", time);
+		shader.setFloat("_radius", fireRadius);
 		
 
 		//Draw shapes
