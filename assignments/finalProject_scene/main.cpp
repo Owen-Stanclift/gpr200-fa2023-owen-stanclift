@@ -82,8 +82,10 @@ int main()
 
 	ew::Shader shader("assets/fireLit.vert", "assets/fireLit.frag");
 	ew::Shader lightShader("assets/unLit.vert", "assets/unLit.frag");
+	unsigned int noiseTexture = ew::loadTexture("assets/noiseTexture.png", GL_REPEAT, GL_LINEAR);
 
-	ew::Mesh fireMesh = myLib::createFire(10.0f, 50,10.0f);
+	ew::MeshData fireMeshData = myLib::createFire(10.0f, 50,10.0f);
+	ew::Mesh fireMesh(fireMeshData);
 
 	ew::Transform fireTransform;
 
@@ -118,7 +120,7 @@ int main()
 
 
 		shader.use();
-		//glBindTexture(GL_TEXTURE_2D, brickTexture);
+		glBindTexture(GL_TEXTURE_2D, noiseTexture);
 		shader.setInt("_Texture", 0);
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
 
