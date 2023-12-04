@@ -13,7 +13,6 @@
 #include <ew/camera.h>
 #include <ew/cameraController.h>
 #include <myLib/procGen.h>
-#include <am/texture.h>
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void resetCamera(ew::Camera& camera, ew::CameraController& cameraController);
@@ -22,12 +21,13 @@ int SCREEN_WIDTH = 1080;
 int SCREEN_HEIGHT = 720;
 
 float prevTime;
+int numFlames = 4;
 ew::Vec3 bgColor = ew::Vec3(0.1f);
 
 ew::Camera camera;
 ew::CameraController cameraController;
 
-struct Light
+struct Flame
 {
 	ew::Vec3 position;
 	ew::Vec3 color;
@@ -45,50 +45,6 @@ struct Particle
 	ew::Vec2 position, velocity;
 	ew::Vec3 color;
 	float life;
-};
-
-float skyboxVertices[] = {        
-	-1.0f,  1.0f, -1.0f,
-	-1.0f, -1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
-	 1.0f,  1.0f, -1.0f,
-	-1.0f,  1.0f, -1.0f,
-
-	-1.0f, -1.0f,  1.0f,
-	-1.0f, -1.0f, -1.0f,
-	-1.0f,  1.0f, -1.0f,
-	-1.0f,  1.0f, -1.0f,
-	-1.0f,  1.0f,  1.0f,
-	-1.0f, -1.0f,  1.0f,
-
-	 1.0f, -1.0f, -1.0f,
-	 1.0f, -1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
-
-	-1.0f, -1.0f,  1.0f,
-	-1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f, -1.0f,  1.0f,
-	-1.0f, -1.0f,  1.0f,
-
-	-1.0f,  1.0f, -1.0f,
-	 1.0f,  1.0f, -1.0f,
-	 1.0f,  1.0f,  1.0f,
-	 1.0f,  1.0f,  1.0f,
-	-1.0f,  1.0f,  1.0f,
-	-1.0f,  1.0f, -1.0f,
-
-	-1.0f, -1.0f, -1.0f,
-	-1.0f, -1.0f,  1.0f,
-	 1.0f, -1.0f, -1.0f,
-	 1.0f, -1.0f, -1.0f,
-	-1.0f, -1.0f,  1.0f,
-	 1.0f, -1.0f,  1.0f
 };
 
 int main()
@@ -114,19 +70,6 @@ int main()
 		return 1;
 	}
 
-	std::vector<std::string> faces;
-	faces.push_back("assets/right.jpg");
-	faces.push_back("assets/left.jpg");
-	faces.push_back("assets/top.jpg");
-	faces.push_back("assets/bottom.jpg");
-	faces.push_back("assets/front.jpg");
-	faces.push_back("assets/back.jpg");
-	unsigned int skybox = loadTextures(faces);
-
-	
-
-
-
 	//Initialize ImGUI
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
@@ -138,20 +81,24 @@ int main()
 	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);
 
-	ew::Shader shader("assets/fireLit.vert", "assets/fireLit.frag");
-	ew::Shader lightShader("assets/unLit.vert", "assets/unLit.frag");
+	
+	ew::Shader shader("assets/unLit.vert", "assets/unLit.frag");
+	ew::Shader fireShader("assets/fireLit.vert", "assets/fireLit.frag");
+	unsigned int noiseTexture = ew::loadTexture("assets/noiseTexture.png", GL_REPEAT, GL_LINEAR);
 
-	ew::Shader skyboxShader("assets/skybox.vert", "assets/skybox.frag");
+	Flame flames[4];
+	Material material;
+	float fireRadius = 0.5f;
+	ew::Mesh fireMesh(myLib::createFire(fireRadius, 60, 5));
+	ew::Transform* fireTransform = new ew::Transform[numFlames];
 
-	GLuint skyboxVAO;
+	fireTransform[0].position = ew::Vec3(1.0, 1.0, 1.0);
+	fireTransform[1].position = ew::Vec3(-1.0, 1.0, 1.0);
+	fireTransform[2].position = ew::Vec3(1.0, 1.0, -1.0);
+	fireTransform[3].position = ew::Vec3(-1.0, 1.0, -1.0);
 
-	glGenVertexArrays(1, &skyboxVAO);
-
-	ew::Mesh fireMesh = myLib::createFire(10.0f, 50,10.0f);
-
-	ew::Transform fireTransform;
-
-	fireTransform.position = ew::Vec3(0, 1.0, 0);
+	ew::Vec3 fireColor1 = ew::Vec3(1.0, 0.0, 0.0);
+	ew::Vec3 fireColor2 = ew::Vec3(1.0, 1.0, 0.0);
 
 	resetCamera(camera, cameraController);
 
@@ -170,52 +117,44 @@ int main()
 		//RENDER
 		glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		fireShader.use();
+		fireShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
 
-		glDepthMask(GL_FALSE);
-		skyboxShader.use();
-		skyboxShader.setMat4("projection", camera.ProjectionMatrix());
-		skyboxShader.setMat4("view", camera.ViewMatrix());
-
-		glBindVertexArray(skyboxVAO);
-		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
-		glDepthMask(GL_TRUE);
-		/*lightShader.use();
-		lightShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());*/
-
-		//for (int i = 0; i < numLights; i++)
-		//{
-		//	lightSphere[i].position = lights[i].position;
-		//	lightShader.setMat4("_Model", lightSphere[i].getModelMatrix());
-		//	lightShader.setVec3("_Color", lights[i].color);
-		//	lightMesh.draw();
-		//}
+		for (int i = 0; i < numFlames; i++)
+		{
+			flames[i].position = flames[i].position;
+			fireShader.setMat4("_Model", fireTransform[i].getModelMatrix());
+			fireShader.setVec3("_Color", flames[i].color);
+			fireMesh.draw();
+		}
 
 
 		shader.use();
-		//glBindTexture(GL_TEXTURE_2D, brickTexture);
+		glBindTexture(GL_TEXTURE_2D, noiseTexture);
 		shader.setInt("_Texture", 0);
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
+		shader.setFloat("_time", time);
+		shader.setFloat("_radius", fireRadius);
+		
 
 		//Draw shapes
-
-
-		shader.setMat4("_Model", fireTransform.getModelMatrix());
+		shader.setVec3("_ColorA", fireColor1);
+		shader.setVec3("_ColorB", fireColor2);
 		fireMesh.draw();
 
 		//TODO: Render point lights
-		//shader.setInt("numLights", numLights);
+		shader.setInt("numFlames", numFlames);
 
-		//	for (int i = 0; i < numLights; i++)
-		//	{
-		//		
-		//		shader.setVec3("_Lights[" + std::to_string(i) + "].position", lights[i].position);
-		//		shader.setVec3("_Lights[" + std::to_string(i) + "].color", lights[i].color);
-		//	}
-		//shader.setFloat("_Material.ambientK", material.ambientK);
-		//shader.setFloat("_Material.diffuseK", material.diffuseK);
-		//shader.setFloat("_Material.specular", material.specular);
-		//shader.setFloat("_Material.shininess", material.shininess);
+			for (int i = 0; i < numFlames; i++)
+			{
+				
+				shader.setVec3("_Flames[" + std::to_string(i) + "].position", flames[i].position);
+				shader.setVec3("_Flames[" + std::to_string(i) + "].color", flames[i].color);
+			}
+		shader.setFloat("_Material.ambientK", material.ambientK);
+		shader.setFloat("_Material.diffuseK", material.diffuseK);
+		shader.setFloat("_Material.specular", material.specular);
+		shader.setFloat("_Material.shininess", material.shininess);
 
 
 		shader.setVec3("cameraPos", camera.position);
@@ -243,6 +182,7 @@ int main()
 				if (ImGui::Button("Reset")) {
 					resetCamera(camera, cameraController);
 				}
+
 			}
 			/*	ImGui::SliderInt("NumLights(0-4)", &numLights,0,4);
 				if (numLights > 0)

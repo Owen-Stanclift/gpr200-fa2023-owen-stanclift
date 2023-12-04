@@ -3,17 +3,18 @@ layout(location = 0) in vec3 vPos;
 layout(location = 1) in vec3 vNormal;
 layout(location = 2) in vec2 vUV;
 
-out vec2 UV;
+out Surface{
+	vec2 UV;
+	vec3 WorldPosition;
+	vec3 WorldNormal;
+}vs_out;
 
 uniform mat4 _Model;
 uniform mat4 _ViewProjection;
-uniform float _radius;
-uniform float _time;
 
 void main(){
-	UV = vUV;
-	float t = smoothstep(-_radius,_radius,vPos.y);
-	float offset = (sin(vPos.x + vPos.y + vPos.z + _time*2)*t)/2;
-	vec3 position = vec3(vPos.x,vPos.y+offset,vPos.z);
-	gl_Position = _ViewProjection * _Model * vec4(position,1.0);
+	vs_out.UV = vUV;
+	vs_out.WorldPosition = vec3(_Model * vec4(vPos,1.0));
+	vs_out.WorldNormal = transpose(inverse(mat3(_Model)))* vNormal;
+	gl_Position = _ViewProjection * vec4(vs_out.WorldPosition,1.0);
 }
