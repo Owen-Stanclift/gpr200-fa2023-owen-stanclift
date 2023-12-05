@@ -2,7 +2,7 @@
 #include "../ew/external/stb_image.h"
 #include "../ew/external/glad.h"
 
-unsigned int loadTexture(const char* filePath, int wrapMode, int filterMode, int mipmapMode) {
+unsigned int loadTextures(const char* filePath, int wrapMode, int filterMode, int mipmapMode) {
 	stbi_set_flip_vertically_on_load(true);
 
 	int width, height, numComponents;
@@ -18,17 +18,17 @@ unsigned int loadTexture(const char* filePath, int wrapMode, int filterMode, int
 	glBindTexture(GL_TEXTURE_2D, texture);
 
 	switch (numComponents) {
-		case 1:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
-			break;
-		case 2:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, data);
-			break;
-		case 3:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
-			break;
-		case 4:
-			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+	case 1:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, width, height, 0, GL_RED, GL_UNSIGNED_BYTE, data);
+		break;
+	case 2:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RG, width, height, 0, GL_RG, GL_UNSIGNED_BYTE, data);
+		break;
+	case 3:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		break;
+	case 4:
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
 	}
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrapMode);

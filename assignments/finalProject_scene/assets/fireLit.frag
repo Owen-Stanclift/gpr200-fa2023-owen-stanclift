@@ -3,17 +3,59 @@ out vec4 FragColor;
 
 in vec2 UV;
 
+in Surface{
+	vec2 UV;
+	vec3 WorldPosition;
+	vec3 WorldNormal;
+}fs_in;
+struct Flame
+{
+ vec3 position;
+ vec3 color;
+};
+
+struct Material
+{
+	float ambientK;
+	float diffuseK;
+	float specular;
+	float shininess;
+};
+
 uniform sampler2D _Texture;
-uniform vec3 _ColorA;
-uniform vec3 _ColorB;
-uniform float iTime;
+#define MAX_FLAMES 4
+uniform Flame _Flames[MAX_FLAMES];
+uniform int numFlames;
+uniform Material _Material;
 vec3 cameraPos;
 
-void main()
-{
-float noise = texture(_Texture,UV).r * (sin(iTime)*0.5);
-	vec2 uv = UV + noise * 0.1f;
-	float t = texture(_Texture,UV).r;
-vec3 c = mix(_ColorA,_ColorB,t);
+void main(){
+
+	int i;
+	vec3 c = texture(_Texture,fs_in.UV).rgb;
+	vec3 totalLight = vec3(0);
+	for(i = 0; i < numFlames; i++)
+	{
+		vec3 lightColor = vec3(0);
+		vec3 normal = normalize(fs_in.WorldNormal);
+		vec3 pos = normalize( _Flames[i].position - fs_in.WorldPosition);
+	
+	
+		vec3 ambient = _Flames[i].color * _Material.ambientK;
+		lightColor += ambient;
+		
+	
+		vec3 diffuse = _Flames[i].color * _Material.diffuseK * max(dot(normal, pos),0);
+		lightColor += diffuse;
+
+
+		vec3 v = normalize(cameraPos - fs_in.WorldPosition);
+		vec3 h = normalize(pos + v);
+		vec3 specularReflection = _Flames[i].color * _Material.specular * pow(max(dot(h,normal),0),_Material.shininess);
+		lightColor += specularReflection;
+
+		totalLight += lightColor;
+	}
+	c = c * totalLight;
 	FragColor = vec4(c,1);
 }
