@@ -24,6 +24,8 @@ int SCREEN_HEIGHT = 720;
 
 float prevTime;
 int numFlames = 4;
+float speed = 1;
+float strength = 4;
 ew::Vec3 bgColor = ew::Vec3(0.1f);
 
 ew::Camera camera;
@@ -187,6 +189,11 @@ int main()
 	ew::Vec3 fireColor1 = ew::Vec3(1.0, 0.0, 0.0);
 	ew::Vec3 fireColor2 = ew::Vec3(1.0, 1.0, 0.0);
 
+	material.ambientK = 0.2f;
+	material.diffuseK = 0.2f;
+	material.specular = 0.2f;
+	material.shininess = 3.0f;
+
 	resetCamera(camera, cameraController);
 
 	while (!glfwWindowShouldClose(window)) {
@@ -223,7 +230,6 @@ int main()
 			flames[i].position = flames[i].position;
 			fireShader.setMat4("_Model", fireTransform[i].getModelMatrix());
 			fireShader.setVec3("_Color", flames[i].color);
-			fireMesh.draw();
 		}
 
 
@@ -232,22 +238,25 @@ int main()
 		shader.setInt("_Texture", 0);
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
 		shader.setFloat("_time", time);
+		shader.setFloat("_speed", speed);
+		shader.setFloat("_strength", strength);
 		shader.setFloat("_radius", fireRadius);
 		
 
 		//Draw shapes
 		shader.setVec3("_ColorA", fireColor1);
 		shader.setVec3("_ColorB", fireColor2);
-		fireMesh.draw();
+		
 
 		//TODO: Render point lights
 		shader.setInt("numFlames", numFlames);
 
 			for (int i = 0; i < numFlames; i++)
 			{
-				
+				shader.setMat4("_Model", fireTransform[i].getModelMatrix());
 				shader.setVec3("_Flames[" + std::to_string(i) + "].position", flames[i].position);
 				shader.setVec3("_Flames[" + std::to_string(i) + "].color", flames[i].color);
+				fireMesh.draw();
 			}
 		shader.setFloat("_Material.ambientK", material.ambientK);
 		shader.setFloat("_Material.diffuseK", material.diffuseK);
@@ -282,17 +291,18 @@ int main()
 				}
 
 			}
-			/*	ImGui::SliderInt("NumLights(0-4)", &numLights,0,4);
-				if (numLights > 0)
+				ImGui::SliderInt("NumFlames(0-4)", &numFlames,0,4);
+				if (numFlames > 0)
 				{
-					for (int i = 0; i < numLights; i++)
+					for (int i = 0; i < numFlames; i++)
 					{
 						ImGui::PushID(i);
 						{
-							if (ImGui::CollapsingHeader("Light"))
+							if (ImGui::CollapsingHeader("Flame"))
 							{
-								ImGui::DragFloat3("Position", &lights[i].position.x, 0.1f);
-								ImGui::DragFloat3("Color", &lights[i].color.x, 0.1f);
+								ImGui::DragFloat3("Position", &flames[i].position.x, 0.1f);
+								ImGui::DragFloat("Speed", &speed,0.1f);
+								ImGui::DragFloat("Strength", &strength,0.1f);
 							}
 						}
 						ImGui::PopID();
@@ -304,7 +314,7 @@ int main()
 						ImGui::SliderFloat("Specular", &material.specular, 0, 1);
 						ImGui::SliderFloat("Shininess", &material.shininess, 2, 10);
 					}
-				}*/
+				}
 
 
 
