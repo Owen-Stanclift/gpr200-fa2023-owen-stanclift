@@ -304,14 +304,15 @@ int main()
 						{
 							if (ImGui::CollapsingHeader("Flame"))
 							{
-								ImGui::DragFloat3("Position", &flames[i].position.x, 0.1f);
+								ImGui::DragFloat3("Position", &fireTransform[i].position.x, 0.1f);
+								ImGui::DragFloat3("Scale", &fireTransform[i].scale.x, 0.1f);
 							}
 						}
 						ImGui::PopID();
 					}
 					if (ImGui::CollapsingHeader("Flame Properties"))
 					{
-						ImGui::SliderFloat("Speed", &speed, 0, 5);
+						ImGui::SliderFloat("Speed", &speed, 0, 20);
 						ImGui::SliderFloat("Strength", &strength, 0, 3);
 						ImGui::SliderFloat("Frequency", &frequency, 1, 5);
 					}
