@@ -25,7 +25,7 @@ int SCREEN_HEIGHT = 720;
 float prevTime;
 int numFlames = 4;
 float speed = 1;
-float strength = 4;
+float strength = 2;
 float frequency = 2;
 ew::Vec3 bgColor = ew::Vec3(0.1f);
 
@@ -305,13 +305,15 @@ int main()
 							if (ImGui::CollapsingHeader("Flame"))
 							{
 								ImGui::DragFloat3("Position", &flames[i].position.x, 0.1f);
-								ImGui::DragFloat("Speed", &speed,0.1f);
-								ImGui::DragFloat("Strength", &strength,0.1f);
-								ImGui::DragFloat("Frequency", &frequency, 0.1f);
-								ImGui::DragFloat("Radius", &fireRadius, 0.1f);
 							}
 						}
 						ImGui::PopID();
+					}
+					if (ImGui::CollapsingHeader("Flame Properties"))
+					{
+						ImGui::SliderFloat("Speed", &speed, 0, 5);
+						ImGui::SliderFloat("Strength", &strength, 0, 3);
+						ImGui::SliderFloat("Frequency", &frequency, 1, 5);
 					}
 					if (ImGui::CollapsingHeader("Material"))
 					{
