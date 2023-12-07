@@ -219,7 +219,7 @@ namespace myLib
 				v.pos.y = radius * cos(phi);
 				v.pos.z = radius * sin(theta) * sin(phi);
 				v.normal = (ew::Vec3(v.pos));
-				v.uv = ew::Vec2({ (float)col / numSegments, (float)row / numSegments });
+				v.uv = ew::Vec2({ (float)col / numSegments, 1- (float)row / numSegments });
 				mesh.vertices.push_back(v);
 			}
 		}

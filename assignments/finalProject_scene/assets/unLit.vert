@@ -11,11 +11,15 @@ uniform float _radius;
 uniform float _time;
 uniform float _speed;
 uniform float _strength;
+uniform float _frequency;
+uniform sampler2D _Texture;
 
 void main(){
 	UV = vUV;
+	vec3 worldPos = vec3(_Model * vec4(vPos,1.0));
 	float t = smoothstep(-_radius,_radius,vPos.y);
-	float offset = (sin((vPos.x) + _time*(_speed*_strength))*t)/_strength;
-	vec3 position = vec3(vPos.x,vPos.y+offset,vPos.z);
-	gl_Position = _ViewProjection * _Model * vec4(position,1.0);
+	vec2 hUV = vec2(_frequency*worldPos.x + _time * _speed);
+	float h = texture(_Texture, hUV).r;
+	worldPos.y += (h *_strength*t);
+	gl_Position = _ViewProjection * vec4(worldPos,1.0);
 }

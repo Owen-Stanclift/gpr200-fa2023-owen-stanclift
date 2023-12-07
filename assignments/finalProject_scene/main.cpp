@@ -26,6 +26,7 @@ float prevTime;
 int numFlames = 4;
 float speed = 1;
 float strength = 4;
+float frequency = 2;
 ew::Vec3 bgColor = ew::Vec3(0.1f);
 
 ew::Camera camera;
@@ -211,7 +212,7 @@ int main()
 		//RENDER
 		glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+		glDisable(GL_BLEND);
 		glDepthMask(GL_FALSE);
 		skyboxShader.use();
 		skyboxShader.setMat4("projection", camera.ProjectionMatrix());
@@ -235,11 +236,14 @@ int main()
 
 		shader.use();
 		glBindTexture(GL_TEXTURE_2D, noiseTexture);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		shader.setInt("_Texture", 0);
 		shader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
 		shader.setFloat("_time", time);
 		shader.setFloat("_speed", speed);
 		shader.setFloat("_strength", strength);
+		shader.setFloat("_frequency",frequency);
 		shader.setFloat("_radius", fireRadius);
 		
 
@@ -303,6 +307,8 @@ int main()
 								ImGui::DragFloat3("Position", &flames[i].position.x, 0.1f);
 								ImGui::DragFloat("Speed", &speed,0.1f);
 								ImGui::DragFloat("Strength", &strength,0.1f);
+								ImGui::DragFloat("Frequency", &frequency, 0.1f);
+								ImGui::DragFloat("Radius", &fireRadius, 0.1f);
 							}
 						}
 						ImGui::PopID();
