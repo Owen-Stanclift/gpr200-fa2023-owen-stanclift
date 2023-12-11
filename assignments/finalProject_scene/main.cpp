@@ -14,6 +14,8 @@
 #include <ew/cameraController.h>
 #include <myLib/procGen.h>
 #include <am/texture.h>
+#include <gs/terrain.h>
+#include <gs/Perlin.h>
 
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
 void resetCamera(ew::Camera& camera, ew::CameraController& cameraController);
@@ -28,6 +30,7 @@ float speed = 1;
 float strength = 2;
 float frequency = 2;
 ew::Vec3 bgColor = ew::Vec3(0.1f);
+
 
 ew::Camera camera;
 ew::CameraController cameraController;
@@ -121,8 +124,12 @@ unsigned short skyboxIndices[] = {
 	0, 1, 5
 };
 
-unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned short* indicesData, int numIndices);
+Terrain terrain(50, 1.0f);
+PerlinNoise perlin;
+int gridSize = 128;
+int stepSize = 10;
 
+unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned short* indicesData, int numIndices);
 
 int main()
 {
@@ -131,7 +138,6 @@ int main()
 		printf("GLFW failed to init!");
 		return 1;
 	}
-
 
 
 	GLFWwindow* window = glfwCreateWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Camera", NULL, NULL);
@@ -197,6 +203,24 @@ int main()
 
 	resetCamera(camera, cameraController);
 
+	std::vector<Vertex> vertices;
+	for (int i = 0; i < terrain.getVertices().size(); i += 3) 
+	{
+		Vertex vertex;
+		vertex.x = terrain.getVertices()[i];
+		vertex.y = terrain.getVertices()[i + 1];
+		vertex.z = terrain.getVertices()[i + 2];
+		vertices.push_back(vertex);
+	}
+	std::vector<unsigned short> indices;
+	for (unsigned int i : terrain.getIndices())
+	{
+		indices.push_back(static_cast<unsigned short>(i));
+	}
+
+	ew::Shader terrainShader("assets/terrain.vert", "assets/terrain.frag");
+	unsigned int terrainVAO = createVAO(vertices.data(), vertices.size()*3, indices.data(), indices.size());
+
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 
@@ -246,7 +270,7 @@ int main()
 		shader.setFloat("_frequency",frequency);
 		shader.setFloat("_radius", fireRadius);
 		
-
+		
 		//Draw shapes
 		shader.setVec3("_ColorA", fireColor1);
 		shader.setVec3("_ColorB", fireColor2);
@@ -267,6 +291,22 @@ int main()
 		shader.setFloat("_Material.specular", material.specular);
 		shader.setFloat("_Material.shininess", material.shininess);
 
+		for (float i = 0; i < gridSize; ++i)
+			for (float j = 0; j < gridSize; ++j)
+			{
+				float x = i * stepSize;
+				float y = j * stepSize;
+				float z = perlin.noise(x, y) * 5.0f;
+				int index = i * gridSize + j;
+			}
+		glDeleteVertexArrays(1, &terrainVAO);
+		terrainVAO = createVAO(vertices.data(), vertices.size() * 3, indices.data(), indices.size());
+		terrainShader.use();
+		terrainShader.setMat4("projection", camera.ProjectionMatrix());
+		terrainShader.setMat4("view", camera.ViewMatrix());
+
+		glBindVertexArray(terrainVAO);
+		glDrawElements(GL_TRIANGLES, terrain.getIndices().size(), GL_UNSIGNED_INT, 0);
 
 		shader.setVec3("cameraPos", camera.position);
 		//Render UI
@@ -381,3 +421,4 @@ unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned short* indi
 
 	return vao;
 }
+
