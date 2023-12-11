@@ -1,3 +1,4 @@
+////Glenn Sakowicz
 #include "Perlin.h"
 
 #include <algorithm>

@@ -124,11 +124,12 @@ unsigned short skyboxIndices[] = {
 	0, 1, 5
 };
 
+////Glenn Sakowicz*************
 Terrain terrain(50, 1.0f);
 PerlinNoise perlin;
 int gridSize = 128;
 int stepSize = 10;
-
+//*************************
 unsigned int createVAO(Vertex* vertexData, int numVertices, unsigned short* indicesData, int numIndices);
 
 int main()
@@ -153,6 +154,7 @@ int main()
 		return 1;
 	}
 
+	// Aylwin Morgan
 	std::vector<std::string> faces;
 	faces.push_back("assets/right.jpg");
 	faces.push_back("assets/left.jpg");
@@ -177,7 +179,7 @@ int main()
 	glCullFace(GL_BACK);
 	glEnable(GL_DEPTH_TEST);
 
-	
+	//Owen Stanclift
 	ew::Shader shader("assets/unLit.vert", "assets/unLit.frag");
 	ew::Shader fireShader("assets/fireLit.vert", "assets/fireLit.frag");
 	unsigned int noiseTexture = ew::loadTexture("assets/noiseTexture.png", GL_REPEAT, GL_LINEAR);
@@ -187,7 +189,7 @@ int main()
 	float fireRadius = 0.5f;
 	ew::Mesh fireMesh(myLib::createFire(fireRadius, 60, 5));
 	ew::Transform* fireTransform = new ew::Transform[numFlames];
-
+	
 	fireTransform[0].position = ew::Vec3(1.0, 1.0, 1.0);
 	fireTransform[1].position = ew::Vec3(-1.0, 1.0, 1.0);
 	fireTransform[2].position = ew::Vec3(1.0, 1.0, -1.0);
@@ -203,6 +205,7 @@ int main()
 
 	resetCamera(camera, cameraController);
 
+	////Glenn Sakowicz*********************************************
 	std::vector<Vertex> vertices;
 	for (int i = 0; i < terrain.getVertices().size(); i += 3) 
 	{
@@ -220,7 +223,7 @@ int main()
 
 	ew::Shader terrainShader("assets/terrain.vert", "assets/terrain.frag");
 	unsigned int terrainVAO = createVAO(vertices.data(), vertices.size()*3, indices.data(), indices.size());
-
+	//*********************************************************************
 	while (!glfwWindowShouldClose(window)) {
 		glfwPollEvents();
 
@@ -234,6 +237,7 @@ int main()
 		cameraController.Move(window, &camera, deltaTime);
 
 		//RENDER
+		// Aylwin Morgan
 		glClearColor(bgColor.x, bgColor.y, bgColor.z, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glDisable(GL_BLEND);
@@ -246,7 +250,7 @@ int main()
 		glBindTexture(GL_TEXTURE_CUBE_MAP, skybox);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		glDepthMask(GL_TRUE);
-
+		//Owen Stanclift
 		fireShader.use();
 		fireShader.setMat4("_ViewProjection", camera.ProjectionMatrix() * camera.ViewMatrix());
 
@@ -291,6 +295,8 @@ int main()
 		shader.setFloat("_Material.specular", material.specular);
 		shader.setFloat("_Material.shininess", material.shininess);
 
+		
+		////Glenn Sakowicz**************************************
 		for (float i = 0; i < gridSize; ++i)
 			for (float j = 0; j < gridSize; ++j)
 			{
@@ -307,10 +313,11 @@ int main()
 
 		glBindVertexArray(terrainVAO);
 		glDrawElements(GL_TRIANGLES, terrain.getIndices().size(), GL_UNSIGNED_INT, 0);
-
+		//*******************************************************************
 		shader.setVec3("cameraPos", camera.position);
 		//Render UI
 		{
+			//Owen Stanclift
 			ImGui_ImplGlfw_NewFrame();
 			ImGui_ImplOpenGL3_NewFrame();
 			ImGui::NewFrame();

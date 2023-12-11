@@ -1,3 +1,4 @@
+////Glenn Sakowicz
 #pragma once
 
 class PerlinNoise {
